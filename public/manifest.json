@@ -1,0 +1,57 @@
+{
+  "manifest_version": 3,
+  "name": "Admin Console",
+  "version": "1.0.0",
+  "icons": {
+    "16": "images/TGreen.png",
+    "32": "images/TGreen.png",
+    "48": "images/TGreen.png",
+    "128": "images/TGreen.png"
+},
+  "action": { "default_popup": "index.html" },
+  "permissions": [
+    "scripting",
+    "tabs",
+    "activeTab",
+    "contextMenus",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://*/*",
+    "https://trustly.one/admin-console/*",
+    "http://*/*"
+  ],
+  "optional_permissions": [
+    "topSites"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*",
+        "<all_urls>"
+      ],
+      "css": ["pages/content/style.css"],
+      "js": [
+        "content.js",
+        "pages/content/index.ts"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "images/icon.png",  
+        "images/trustly_logo.png",
+        "images/trustlyGreen.png",
+        "images/tea.png"
+      ],
+      "matches": ["<all_urls>"]
+    }, 
+    {
+      "resources": ["images/icon.png"],
+      "matches": ["<all_urls>"],
+      "use_dynamic_url": true
+    }
+  ]
+}
