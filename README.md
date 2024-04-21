@@ -14,8 +14,9 @@ This Google Chrome extension enhances the functionality of Admin Console, a soft
 
 ## Images
 
-![admin Extension](https://github.com/auadmendes/adminExtension/assets/5294488/64f8cc07-4cb3-4cf2-88ed-c3a2d3341020)
-![Admin1-fotor-2024042114638](https://github.com/auadmendes/adminExtension/assets/5294488/99a20e3e-484a-4b24-bfa0-7d3ef0826e38)
+![admin Extension](https://github.com/auadmendes/Admin_Extension/assets/5294488/be3e5534-9597-47e2-8f00-0da3f1a1a731)
+
+![AdminBlur](https://github.com/auadmendes/Admin_Extension/assets/5294488/1be895e6-8539-436b-a997-fead430ed4b2)
 
 
 ## Installation
