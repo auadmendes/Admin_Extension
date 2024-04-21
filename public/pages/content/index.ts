@@ -1,12 +1,10 @@
 
 
-
 let transactionBoxUl;
 let paymentBoxUl;
 let fiBoxUl;
 let accountCustomerBoxUl;
 let teaID;
-//let data;
 
 async function init() {
     createGroup();
@@ -15,6 +13,7 @@ async function init() {
     creatingTheBoxInfo();
     someAllAmountsOnThePage();
     
+    //testing adding button to merchant Portal to download the table / the extension already does that in the pop up
     //addButtonMerchantPortal();
    // callApiTest();
     // const cookies = document.cookie.split(';');
@@ -119,10 +118,12 @@ async function paymentTab() {
 async function someAllAmountsOnThePage() {
     const rows = document.querySelectorAll('#sortabletable tbody tr');
     let totalAmount = 0;
-
+    let amount;
     rows.forEach(row => {
         const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
-        const amount = parseFloat(amountText.replace(/[^0-9.-]+/g, '')); // Extract numerical value
+        if(amountText !== undefined) {
+             amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
+        }
         if (!isNaN(amount)) {
             totalAmount += amount;
         }
@@ -132,19 +133,18 @@ async function someAllAmountsOnThePage() {
 
     if (resetButton) {
 
-        resetButton.style.backgroundColor = '#105FA6';
+        // resetButton.style.backgroundColor = '#105FA6';
         resetButton.style.color = '#fff';
         resetButton.style.borderRadius = '4px';
         //resetButton.style.marginTop = '5px';
-
+        resetButton.classList.add('btn', 'btn-primary');
         const newDiv = document.createElement('div');
-        //newDiv.innerHTML = `<span>Total amount in this page: ${totalAmount.toFixed(2)}</span>`
-        //newDiv.innerText = `Total amount ${totalAmount.toFixed(2)}`
+        
         
         newDiv.style.display = 'inline-block';
         newDiv.style.alignItems = 'center';
         newDiv.style.justifyContent = 'center';
-        newDiv.style.background = '#F6F3F0';
+        newDiv.style.background = '#d9ecd3';
         newDiv.style.padding = '7px 10px 8px 10px';
         //newDiv.style.paddingBottom = '10px';
         newDiv.style.marginLeft = '5px';
@@ -152,18 +152,18 @@ async function someAllAmountsOnThePage() {
         newDiv.style.marginTop = '5px';
 
 
-        newDiv.innerHTML = `<span style="color: #41424C; margin-top: 1000px;"> Total amount:
-            <span style="color: #A03A3A;">
+        newDiv.innerHTML = `<span style="color: #025939;"> Total amount:
+            <span style="color: #012340;">
             $${totalAmount.toFixed(2)}
             </span>
         </span>`
 
-        // Insert the new div after the first child of the parent div
+
         resetButton.insertAdjacentElement('afterend', newDiv);
     }
 
-    // Now totalAmount contains the sum of all amounts in the 17th column
-    console.log('Total Amount:', totalAmount.toFixed(2));
+
+        //console.log('Total Amount:', totalAmount.toFixed(2));
 }
 
 async function tabTransaction() {
@@ -319,17 +319,16 @@ async function tabTransaction() {
     }
     transactionBoxUl.innerHTML += `<li>VIP?: <span style="color: red;"> ${isVip ? isVip : "no data"}</span></li>`
 
-   // creatingTheBoxInfo();
 }
 
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text)
-        .then(() => {
-            showToast(`Copied to clipboard`);
-        })
-        .catch((error) => {
-            console.error('Failed to copy:', error);
-        });
+    .then(() => {
+        showToast(`Copied to clipboard`);
+    })
+    .catch((error) => {
+        console.error('Failed to copy:', error);
+    });
 }
 
 async function tabFiTransaction() {
@@ -350,28 +349,27 @@ async function tabFiTransaction() {
 
     fiBoxUl = document.createElement('ul');
     fiBoxUl.id = 'FIBox';
-
-    //if(expectToComplete) {
-    const expectedDate = new Date(expectToComplete);
-    //}
+    let expectedDate;
+    if(expectToComplete) {
+        expectedDate = new Date(expectToComplete);
+    }
     const currentDate = new Date();
 
-    //Step 2: Calculate the time difference in milliseconds
+    
     const timeDifference = expectedDate.getTime() - currentDate.getTime();
 
-    //Step 3: Calculate the difference in days
+    //Calculate the difference in days
     const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
 
     if (daysDifference -1 > 0) {
-        // Expected completion is in the future
-        //console.log('A diferença é maior que zero', daysDifference);
-        message = `Expect to complete: <strong style="color: red;">${daysDifference}</strong>`; ////////////
+
+        message = `Expect to complete: <strong style="color: red;">${daysDifference}</strong>`; 
     } else if (daysDifference -1 === 0) {
         // Expected completion is today
         console.log('A diferença é igual a zero');
         message = "Completed today";
     } else {
-        // Expected completion is in the past
+        
         const daysAgo = Math.abs(daysDifference);
         message = `Completed ${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
     }
@@ -387,10 +385,6 @@ async function tabFiTransaction() {
     fiBoxUl.innerHTML += `<li>Guaranteed?: <span style="color: red;"> ${isGuaranteed ? isGuaranteed : "no data"}</span></li>`
     //fiBoxUl.innerHTML += `<li>Fi Trx ID: <span onClick="navigator.clipboard.writeText('${fiTransactionId}')" style="color: red; cursor: pointer;">${fiTransactionId}</span></li>`;
     fiBoxUl.innerHTML += `<li>Fi Trx ID: <span class="copyable" style="color: red; cursor: pointer;">${fiTransactionId}</span></li>`;
-
-
-
-
 
 
     fiBoxUl.innerHTML += `<li>
@@ -466,8 +460,6 @@ async function tabAccountCustomer() {
 }
 
 }
-//https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&paymentType=&transactionType=&transactionStatus=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=${customerExternalID}
-//https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}
 
 
 async function creatingTheBoxInfo(){
@@ -505,19 +497,23 @@ async function createGroup() {
             const liSelectedPtx = document.createElement('li');
             const liPtxAll = document.createElement('li');
             const liRef = document.createElement('li');
+            const liMRef = document.createElement('li');
 
             const newLinkSelectedPtx = document.createElement('a');
             const newLinkSelectedPtxAll = document.createElement('a');
             const newLinkRef = document.createElement('a');
+            const newLinkSelectedMerchantRef = document.createElement('a');
 
 
             newLinkSelectedPtx.href = '#';
             newLinkSelectedPtxAll.href = '#';
             newLinkRef.href ='#';
+            newLinkSelectedMerchantRef.href ='#';
 
             newLinkSelectedPtx.textContent = 'Copy Selected PTX'
             newLinkSelectedPtxAll.textContent = 'Copy All PTXs'
             newLinkRef.textContent = 'Copy All. M. Ref'
+            newLinkSelectedMerchantRef.textContent = 'Copy Select. M. Ref'
 
             newLinkSelectedPtx.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -534,34 +530,76 @@ async function createGroup() {
                 copyAllMerchantReferenceToClipboard();
             });
 
+            newLinkSelectedMerchantRef.addEventListener('click', function(event) {
+                event.preventDefault();
+                copySelectedMerchantReferenceToClipboard();
+            });
+
             liSelectedPtx.appendChild(newLinkSelectedPtx);
             liPtxAll.appendChild(newLinkSelectedPtxAll);
             liRef.appendChild(newLinkRef);
+            liMRef.appendChild(newLinkSelectedMerchantRef);
 
             group.appendChild(liSelectedPtx);
             group.appendChild(liPtxAll);
             group.appendChild(liRef);
+            group.appendChild(liMRef);
         }
        
 }
 
-function copySelectedPtxToClipboard() {
-    // Select the table
+function copySelectedMerchantReferenceToClipboard() {
+    
     const table = document.getElementById('sortabletable');
 
     if(table) {
     
     const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
-    // Get the selected rows (rows with a checked checkbox)
+    
+    if (selectedRows.length === 0) {
+        showToast('No rows selected.')
+    
+        return;
+    }
 
-    // Check if any rows are selected
+    const selectedValues = [] ;
+
+    
+    selectedRows.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const fiTrxId = row?.querySelector('.break-all')?.textContent;
+        if (fiTrxId !== null && fiTrxId !== undefined && fiTrxId !== '') {
+            selectedValues.push(fiTrxId);
+        }
+    });
+    
+    const selectedValuesString = selectedValues.join(',\n');
+
+    
+    navigator.clipboard.writeText(selectedValuesString)
+        .then(() => {
+            //console.log('Selected values copied to the clipboard:', selectedValuesString);
+            showToast('Merchant Reference - Copied to clipboard'); 
+        })
+        .catch(error => {
+            console.error('Error copying to clipboard:', error);
+        });
+    }
+}
+
+function copySelectedPtxToClipboard() {
+    const table = document.getElementById('sortabletable');
+
+    if(table) {
+    
+    const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
+
     if (selectedRows.length === 0) {
         showToast('No rows selected.')
         //console.log('No rows selected.');
         return;
     }
 
-    // Create an array to store the selected values
     const selectedValues = [];
 
     // Iterate through each selected row
@@ -587,41 +625,32 @@ function copySelectedPtxToClipboard() {
 }
 
 async function copyAllPtxToClipboard() {
-    // Select the table
     const table = document.getElementById('sortabletable');
 
     if(table) {
+        const allRows = Array.from(table.querySelectorAll('tbody tr'));
 
-    // Get all rows in the tbody
-    const allRows = Array.from(table.querySelectorAll('tbody tr'));
-
-    //Check if any rows are present
     if (allRows.length === 0) {
         showToast('Copying all');
-        //console.log('No rows found.');
         return;
     }
 
-    // Create an array to store all the .viewFiTrxId-col values
+    // For some reason I cannot use const allFiTrxIds: string[] = [] or const allFiTrxIds = [] as string[]
     const allFiTrxIds = [];
 
-    // Iterate through each row
+    
     allRows.forEach(row => {
         // Get the .viewFiTrxId-col value for each row
         const fiTrxId = row.querySelector('.viewFiTrxId-col')?.textContent;
         allFiTrxIds.push(fiTrxId);
     });
 
-    // Join the values with commas and newline characters
     const allFiTrxIdsString = allFiTrxIds.join(',\n');
 
     
-
-    // Copy all the values to the clipboard
     navigator.clipboard.writeText(allFiTrxIdsString)
         .then(() => {
-            //console.log('All FiTrxIds copied to the clipboard:', allFiTrxIdsString);
-            showToast('Copying all PTXs to clipboard'); // Display a toast notification
+            showToast('Copying all PTXs to clipboard'); 
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -672,54 +701,6 @@ async function copyAllMerchantReferenceToClipboard() {
 }
 
 
-
-// This function needs to be recreated
-// function copySelectedMerchantReferencesToClipboard() {
-//     // Select the table
-//     const table = document.getElementById('sortabletable');
-
-//     if (table) {
-//         // Get the checked rows
-//         const checkedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
-
-//         // Check if any rows are checked
-//         if (checkedRows.length === 0) {
-//             showToast('No rows selected.');
-//             return;
-//         }
-
-//         // Create an array to store the selected merchant references
-//         const selectedMerchantReferences = [];
-
-//         // Iterate through each checked row
-//         checkedRows.forEach(checkbox => {
-//             const row = checkbox.closest('tr');
-//             const merchantReference = row?.querySelector('.merchant-reference')?.textContent;
-//             if (merchantReference) {
-//                 selectedMerchantReferences.push(merchantReference);
-//             }
-//         });
-
-//         // If there are no merchant references in checked rows, show the toast and return
-//         if (selectedMerchantReferences.length === 0) {
-//             showToast('No merchant references found in selected rows.');
-//             return;
-//         }
-
-//         // Join the selected merchant references with commas and newline characters
-//         const selectedMerchantReferencesString = selectedMerchantReferences.join(',\n');
-
-//         // Copy the selected merchant references to the clipboard
-//         navigator.clipboard.writeText(selectedMerchantReferencesString)
-//             .then(() => {
-//                 showToast('Copied merchant references to clipboard');
-//             })
-//             .catch(error => {
-//                 console.error('Error copying to clipboard:', error);
-//             });
-//     }
-// }
-
 async function changeLogo() {
     //const imageLogoTrustly = chrome.runtime.getURL("images/trustly_logo.png");
     const trustlyLogoGreen = chrome.runtime.getURL("images/trustlyGreen.png");
@@ -734,7 +715,7 @@ async function changeLogo() {
 
 
 
-
+// Testing here
 // async function callApiTest() {
 //     try {
 //         const response = await fetch('http://localhost:3333/users', {
