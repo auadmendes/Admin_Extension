@@ -312,12 +312,29 @@ async function tabTransaction() {
 
     //////////////////////////////////////////////
     
-    transactionBoxUl.innerHTML += `<li>Status: ${statusCode}</li>`
-    transactionBoxUl.innerHTML += `<li style="color: red;">Return: ${liReturnCode ? liReturnCode : "no"}</li>`
+    if(statusCode !== ''){
+        transactionBoxUl.innerHTML += `<li>Status: ${statusCode}</li>`
+    } else {
+        transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Status: not found</li>`
+    }
+
+    if(liReturnCode) {
+        transactionBoxUl.innerHTML += `<li>Return: <span style="color: red;">${liReturnCode}</span></li>`
+    } else {
+        transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Return: not found</li>`
+    }
+
+    
     if(eventsTitle != null) {
         transactionBoxUl.innerHTML += `<li style="color: red;">${eventsTitle}: ${denyDescription ? 'Return: ' + denyDescription.substring(0,4) : "Could not provide"}</li>`
     }
-    transactionBoxUl.innerHTML += `<li>VIP?: <span style="color: red;"> ${isVip ? isVip : "no data"}</span></li>`
+
+    if(isVip) {
+        transactionBoxUl.innerHTML += `<li>VIP?: <span style="color: red;"> ${isVip}</span></li>`
+    } else {
+        transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">VIP: <span> not found</span></li>`
+    }
+
 
 }
 
@@ -333,14 +350,14 @@ function copyToClipboard(text) {
 
 async function tabFiTransaction() {
     
-    const achProcessor = document.querySelector('#fi-transaction tbody tr:nth-child(3) td:nth-child(2)')?.textContent;
-    const routing = document.querySelector('#fi-transaction tbody tr:nth-child(10) td:nth-child(2)')?.textContent;
-    const account = document.querySelector('#fi-transaction tbody tr:nth-child(11) td:nth-child(2)')?.textContent;
-    const virtualAccount = document.querySelector('#fi-transaction tbody tr:nth-child(13) td:nth-child(2)')?.textContent;
-    const expectToComplete = document.querySelector('#fi-transaction tbody tr:nth-child(19) td:nth-child(2)')?.textContent;
-    const isGuaranteed = document.querySelector('#fi-transaction tbody tr:nth-child(21) td:nth-child(2)')?.textContent;
-    const linkElement = document.querySelector('#fi-transaction tbody tr:nth-child(1) td:nth-child(2) a');
-    const fiTransactionId = linkElement?.textContent?.trim();
+     const achProcessor = document.querySelector('#fi-transaction tbody tr:nth-child(3) td:nth-child(2)')?.textContent;
+     const routing = document.querySelector('#fi-transaction tbody tr:nth-child(10) td:nth-child(2)')?.textContent;
+     const account = document.querySelector('#fi-transaction tbody tr:nth-child(11) td:nth-child(2)')?.textContent;
+     const virtualAccount = document.querySelector('#fi-transaction tbody tr:nth-child(13) td:nth-child(2)')?.textContent;
+     const expectToComplete = document.querySelector('#fi-transaction tbody tr:nth-child(19) td:nth-child(2)')?.textContent;
+     const isGuaranteed = document.querySelector('#fi-transaction tbody tr:nth-child(21) td:nth-child(2)')?.textContent;
+     const linkElement = document.querySelector('#fi-transaction tbody tr:nth-child(1) td:nth-child(2) a');
+     const fiTransactionId = linkElement?.textContent?.trim();
     
     
 
@@ -350,50 +367,82 @@ async function tabFiTransaction() {
     fiBoxUl = document.createElement('ul');
     fiBoxUl.id = 'FIBox';
     let expectedDate;
-    if(expectToComplete) {
+    let daysDifference;
+
+    if(expectToComplete !== '') {
         expectedDate = new Date(expectToComplete);
+        const currentDate = new Date();
+        const timeDifference = expectedDate.getTime() - currentDate.getTime();
+
+        //Calculate the difference in days
+        daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+        if (daysDifference > 0) {
+
+            message = `Expect to complete: <strong style="color: red;">${daysDifference}</strong>`; 
+        } else if (daysDifference -1 === 0) {
+            // Expected completion is today
+            message = "Completed today";
+        } else {
+            
+            const daysAgo = Math.abs(daysDifference);
+            message = `Completed ${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
+        }
     }
-    const currentDate = new Date();
 
     
-    const timeDifference = expectedDate.getTime() - currentDate.getTime();
-
-    //Calculate the difference in days
-    const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
-
-    if (daysDifference -1 > 0) {
-
-        message = `Expect to complete: <strong style="color: red;">${daysDifference}</strong>`; 
-    } else if (daysDifference -1 === 0) {
-        // Expected completion is today
-        console.log('A diferença é igual a zero');
-        message = "Completed today";
-    } else {
-        
-        const daysAgo = Math.abs(daysDifference);
-        message = `Completed ${daysAgo} ${daysAgo === 1 ? "day" : "days"} ago`;
-    }
 
     
 
     fiBoxUl.innerHTML += `<h4>FI Transaction</h4>`;
-    fiBoxUl.innerHTML += `<li>Payment: ${achProcessor}</li>`;
-    
-    fiBoxUl.innerHTML += `<li>Routing: ${routing?.trim().substring(0,9)}</li>`
-    fiBoxUl.innerHTML += `<li>Account: ${account?.trim().substring(0,12)}</li>`;
-    fiBoxUl.innerHTML += `<li>Virtual account: ${virtualAccount ? virtualAccount : "no data"}</li>`
-    fiBoxUl.innerHTML += `<li>Guaranteed?: <span style="color: red;"> ${isGuaranteed ? isGuaranteed : "no data"}</span></li>`
-    //fiBoxUl.innerHTML += `<li>Fi Trx ID: <span onClick="navigator.clipboard.writeText('${fiTransactionId}')" style="color: red; cursor: pointer;">${fiTransactionId}</span></li>`;
-    fiBoxUl.innerHTML += `<li>Fi Trx ID: <span class="copyable" style="color: red; cursor: pointer;">${fiTransactionId}</span></li>`;
+    if(achProcessor !== '') {
+        fiBoxUl.innerHTML += `<li>Payment: ${achProcessor}</li>`;
+    }else {
+        fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Payment: not found</li>`;
+    }
+
+    if(routing !== '') {
+        fiBoxUl.innerHTML += `<li>Routing: ${routing?.trim().substring(0,9)}</li>`
+    }else{
+        fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Routing: not found</li>`
+    }
+
+    if(account !== ''){
+        fiBoxUl.innerHTML += `<li>Account: ${account?.trim().substring(0,12)}</li>`;
+    }else {
+        fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Account: not found</li>`;
+    }
 
 
-    fiBoxUl.innerHTML += `<li>
-    Expect to complete: 
-        <span style="color: red;">
-        ${expectToComplete ? expectToComplete : "no data"}
-        </span>
-        <p>${expectToComplete ? message : ""}</p>
-    </li>`
+    if(virtualAccount !== ''){
+        fiBoxUl.innerHTML += `<li>Virtual account: ${virtualAccount}</li>`
+    }else {
+        fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Virtual account: not found</li>`
+    }
+
+
+    if(expectToComplete !== ''){
+        fiBoxUl.innerHTML += `<li>
+            <span style="color: red;">
+            ${ daysDifference > 0 ?  `<span>Will complete: ${expectToComplete}</span>` : ""}
+            <p>${expectToComplete ? message : ""}</p>
+            </span>
+        </li>`
+    }
+
+
+    if(isGuaranteed !== ''){
+
+        fiBoxUl.innerHTML += `<li>Guaranteed?: <span style="color: red;"> ${isGuaranteed ? isGuaranteed : "no data"}</span></li>`
+    }else {
+        fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Guaranteed?: <span> no data found}</span></li>`
+    }
+
+    if(fiTransactionId !== ''){
+        fiBoxUl.innerHTML += `<li>Fi Trx ID: <span class="copyable" style="color: red; cursor: pointer;">${fiTransactionId}</span></li>`;
+    }else {
+        fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Fi Trx ID: <span class="copyable">not found</span></li>`;
+    }
 
 
     fiBoxUl.addEventListener('click', function(event) {
@@ -423,7 +472,12 @@ async function tabAccountCustomer() {
 
     accountCustomerBoxUl.innerHTML += `<h4>Customer Info (<a target="_blank" href=${merchantLink}>${merchantName?.substring(0,8)}...</a>)</h4>`;
     accountCustomerBoxUl.innerHTML += `<li>Name: ${customerName}</li>`;
-    accountCustomerBoxUl.innerHTML += `<li>Email: ${customerEmail}</li>`;
+
+    if(customerEmail) {
+        accountCustomerBoxUl.innerHTML += `<li>Email: ${customerEmail}</li>`;
+    } else {
+        accountCustomerBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Email: not found</li>`;
+    }
     //customerInfoBox.innerHTML += `<li><a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}">Person ID: ${personID}</a></li>`;
     
     if(personID) {
@@ -616,7 +670,7 @@ function copySelectedPtxToClipboard() {
     navigator.clipboard.writeText(selectedValuesString)
         .then(() => {
             //console.log('Selected values copied to the clipboard:', selectedValuesString);
-            showToast('Copied to clipboard'); // Display a toast notification
+            showToast('Selected PTXs, Copied to clipboard'); // Display a toast notification
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -650,7 +704,7 @@ async function copyAllPtxToClipboard() {
     
     navigator.clipboard.writeText(allFiTrxIdsString)
         .then(() => {
-            showToast('Copying all PTXs to clipboard'); 
+            showToast('All PTXs, copied to the clipboard'); 
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -691,8 +745,8 @@ async function copyAllMerchantReferenceToClipboard() {
     // Copy the values to the clipboard
     navigator.clipboard.writeText(breakAllValuesString)
         .then(() => {
-            console.log('Values with class "break-all" copied to the clipboard:', breakAllValuesString);
-            showToast('Copied to clipboard'); // Display a toast notification
+            //console.log('Values with class "break-all" copied to the clipboard:', breakAllValuesString);
+            showToast('All Merchant Ref, Copied to clipboard'); // Display a toast notification
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
