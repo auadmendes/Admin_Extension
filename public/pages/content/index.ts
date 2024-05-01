@@ -9,10 +9,13 @@ let teaID;
 async function init() {
     createGroup();
     changeLogo();
-    rearrangeInputs();
+    //rearrangeInputs();
     creatingTheBoxInfo();
     someAllAmountsOnThePage();
+
+    addLinkToMerchantReferenceOnTransactionsList();
     
+    changeButtonTransactionsPage();
     //testing adding button to merchant Portal to download the table / the extension already does that in the pop up
     //addButtonMerchantPortal();
    // callApiTest();
@@ -61,15 +64,31 @@ function showToast(message) {
     }, 2000); 
 }
 
-async function rearrangeInputs() {
-    const inputStatus = document.querySelector('#frmTransactions div:nth-child(13)');
-    const inputPerson = document.querySelector('#hidden-filters div:nth-child(43)');
+// async function rearrangeInputs() {
+//     const inputStatus = document.querySelector('#frmTransactions div:nth-child(13)');
+//     const inputPerson = document.querySelector('#hidden-filters div:nth-child(43)');
+    
+//     const ppStatusTrs = document.querySelector('#frmTransactions div:nth-child(8)');
+//     const externalID = document.querySelector('#hidden-filters div:nth-child(5)');
 
-    if(inputPerson && inputStatus) {
-        inputStatus.replaceWith(inputPerson);
-    }
+//     //const inputPersonID = document.querySelector('#personId');
+//     //const inputExternalID = document.querySelector('#customerExternalId');
+    
+//     if(inputPerson && inputStatus) {
+//         //inputPersonID.style.borderColor = '#025939';
 
-}
+//         //inputPerson.style.border = '1px solid #025939';
+
+//         inputStatus.replaceWith(inputPerson);
+//     }
+
+//     if(ppStatusTrs && externalID) {
+//         //inputExternalID.style.borderColor = '#025939';
+
+//         ppStatusTrs.replaceWith(externalID);
+//     }
+
+// }
 
 async function paymentTab() {
 
@@ -423,13 +442,14 @@ async function tabFiTransaction() {
 
     if(expectToComplete !== ''){
         fiBoxUl.innerHTML += `<li>
-            <span style="color: red;">
-            ${ daysDifference > 0 ?  `<span>Will complete: ${expectToComplete}</span>` : ""}
-            <p>${expectToComplete ? message : ""}</p>
-            </span>
+            
+            ${ daysDifference > 0 ?  `Will complete: ${expectToComplete}` : ""}
+            ${expectToComplete ? `<span>${message}</span>` : ""}
+            
         </li>`
     }
 
+   //${expectToComplete ? `<p>${message}</p>` : ""}
 
     if(isGuaranteed !== ''){
 
@@ -515,7 +535,6 @@ async function tabAccountCustomer() {
 
 }
 
-
 async function creatingTheBoxInfo(){
 
     const divContent = document.querySelector('.col-md-12 div.tab-content');
@@ -544,7 +563,7 @@ async function creatingTheBoxInfo(){
     }
 }
 
-async function createGroup() {
+async function createGroup() { 
     const group = document.querySelector('.btn-group ul');
 
         if(group) {
@@ -622,12 +641,26 @@ function copySelectedMerchantReferenceToClipboard() {
     selectedRows.forEach(checkbox => {
         const row = checkbox.closest('tr');
         const fiTrxId = row?.querySelector('.break-all')?.textContent;
-        if (fiTrxId !== null && fiTrxId !== undefined && fiTrxId !== '') {
-            selectedValues.push(fiTrxId);
+        const fiOriginal = row?.querySelector('.viewOriginalTrxId-col')?.textContent;
+        const transaction = row?.querySelector('td:nth-child(2)')?.textContent;
+        const trType = row?.querySelector('td:nth-child(8)')?.textContent;
+        const country = row?.querySelector('td:nth-child(12)')?.textContent;
+        const amount = row?.querySelector('td:nth-child(17)')?.textContent;
+
+       // const data =  fiOriginal + ' - ' + fiTrxId + ' - ' + country + ' '  + amount;
+       // const dataCapture = transaction + ' - ' + fiTrxId + ' - ' + country + ' ' + amount;
+
+        const data = `${fiOriginal}  -  ${fiTrxId}  -  ${country === 'US' ? 'USD ' : 'CAD '} ${amount}`;
+        const dataCapture = `${transaction}  -  ${fiTrxId}  -  ${country === 'US' ? 'USD ' : 'CAD '} ${amount}`;
+
+        if (trType !== 'Capture') {
+            selectedValues.push(data);
+        }else {
+            selectedValues.push(dataCapture);
         }
     });
     
-    const selectedValuesString = selectedValues.join(',\n');
+    const selectedValuesString = selectedValues.join('\n');
 
     
     navigator.clipboard.writeText(selectedValuesString)
@@ -754,6 +787,43 @@ async function copyAllMerchantReferenceToClipboard() {
     }
 }
 
+async function addLinkToMerchantReferenceOnTransactionsList() {
+    
+    const dataTransactionsTable = document.querySelector('#sortabletable');
+
+    if(dataTransactionsTable) {
+        const breakAllTds = Array.from(dataTransactionsTable.querySelectorAll('tbody tr .break-all'));
+
+
+        breakAllTds.forEach(td => {
+            if (td.textContent !== null) {
+                const tdMerchantReference = td
+                
+                tdMerchantReference.innerHTML = `<a target="_blank" href="https://trustly.one/admin-console/transactions?merchantReference=${td.textContent}">${td.textContent}</a>`
+
+            }
+        });
+
+
+
+        const transactionTable = document.querySelector('#sortabletable');
+
+        if (transactionTable) {
+            const transactionsRows = Array.from(transactionTable.querySelectorAll('tbody tr'));
+
+            transactionsRows.forEach(row => {
+
+                const tdTransactionId = row.querySelector('td:nth-child(2) a'); 
+                //const tdiTransaction = row.querySelector('td:nth-child(2)'); 
+
+                if (tdTransactionId && tdTransactionId.href) {
+                    tdTransactionId.setAttribute('target', '_blank');
+                    //tdiTransaction.style.borderColor = '#ff0000';
+                }
+            });
+        }
+    }
+}
 
 async function changeLogo() {
     //const imageLogoTrustly = chrome.runtime.getURL("images/trustly_logo.png");
@@ -766,6 +836,130 @@ async function changeLogo() {
         anchorElement.style.backgroundSize = '160px';
     }
 }
+
+// async function changeButtonTransactionsPage() {
+//     const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
+
+//     const moreFilter = document.querySelector('#toggle-filters');
+
+//     const span = `
+//         <span>
+//             <img src="${iconFilter}" style="height: 20px; margin-right: 5px;">
+//             More Filters 2
+//         </span>
+//     `;
+
+//     // Insert the span element into the moreFilter element as its first child
+//     moreFilter?.insertAdjacentHTML('afterbegin', span);
+
+//     moreFilter.style.backgroundColor = '#28A745';
+//     moreFilter.style.color = '#fff';
+//     moreFilter.style.padding = '8px';
+//     moreFilter.style.borderRadius = '4px';
+// }
+
+// async function changeButtonTransactionsPage() {
+//     const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
+
+//     const moreFilterA = document.querySelector('#toggle-filters');
+//     const hrElement = document.querySelector('hr'); // Assuming there's only one <hr> element
+//     const divAfterHr = hrElement.nextElementSibling;
+
+//     // Get the div with the class 'form-group' and no other classes
+// //    const specificDiv = document.querySelectorAll('div.form-group:not([class*="col-sm-3"])');
+//     // Get all div elements with only the class 'form-group'
+// // Get the div containing an <a> element with id 'toggle-columns'
+// // Get the div containing an <a> element with id 'toggle-columns'
+// const divWithToggleColumns = document.querySelector('div:has(a#toggle-columns)');
+
+// // Get the first div before the divWithToggleColumns
+// const firstDivBeforeToggleColumns = divWithToggleColumns?.previousElementSibling;
+
+
+
+
+
+//     const divElement = document.createElement('div');
+//     divElement.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`
+//     //spanElement.textContent = 'Test'; // Set the text content of the span
+
+//     divAfterHr?.insertBefore(divElement, divAfterHr.firstChild);
+
+//     // Style the divAfterHr element (assuming it's an <a> element)
+
+
+//     moreFilterA.style.color = '#fff'
+
+//     divAfterHr.style.display = 'flex';
+//     divAfterHr.style.width = '130px';
+//     divAfterHr.style.backgroundColor = '#28A745';
+//     divAfterHr.style.color = '#fff';
+//     divAfterHr.style.padding = '8px';
+//     divAfterHr.style.borderRadius = '4px';
+
+//     firstDivBeforeToggleColumns.style.backgroundColor = '#ff0000';
+// }
+
+async function changeButtonTransactionsPage() {
+    const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
+    const iconColumns = await chrome.runtime.getURL("images/icon_check.png");
+
+    const moreFilterA = document.querySelector('#toggle-filters');
+    const moreColumnsA = document.querySelector('#toggle-columns');
+
+    // const hrElement = document.querySelector('hr'); // Assuming there's only one <hr> element
+    // const divAfterHr = hrElement.nextElementSibling;
+
+    const divElementFilter = document.createElement('div');
+    const divElementColumn = document.createElement('div');
+    
+
+    
+    const divWithToggleFilters = document.querySelector('div.form-group:has(a#toggle-filters)');
+
+    // Check if the div is found before changing its background color
+    if (divWithToggleFilters) {
+        divElementFilter.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`
+        
+        moreFilterA.style.color = '#025939';
+
+        divWithToggleFilters.style.backgroundColor = '#d9ecd3'; 
+        divWithToggleFilters.style.color = '#fff'
+        divWithToggleFilters.style.display = 'flex';
+        divWithToggleFilters.style.width = '135px';
+        
+        
+        divWithToggleFilters.style.padding = '8px';
+        divWithToggleFilters.style.borderRadius = '4px';
+        
+        // Insert divElement into divWithToggleFilters
+        divWithToggleFilters.insertBefore(divElementFilter, divWithToggleFilters.firstChild);
+    }
+
+    const divWithToggleColumns = document.querySelector('div.form-group:has(a#toggle-columns)');
+
+    if (divWithToggleColumns) {
+        divElementColumn.innerHTML = `<img src="${iconColumns}" style="height: 20px; margin-right: 5px;">`
+        moreColumnsA.style.color = '#025939';
+        
+        divWithToggleColumns.style.color = '#fff'
+        divWithToggleColumns.style.display = 'flex';
+        divWithToggleColumns.style.width = '135px';
+        divWithToggleColumns.style.backgroundColor = '#d9ecd3';
+        divWithToggleColumns.style.color = '#fff';
+        divWithToggleColumns.style.padding = '8px';
+        divWithToggleColumns.style.borderRadius = '4px';
+
+        // Insert divElement into divWithToggleColumns
+        divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
+    }
+
+
+}
+
+
+
+
 
 
 

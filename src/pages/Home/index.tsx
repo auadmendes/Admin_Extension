@@ -1,12 +1,25 @@
-import { useEffect, useState } from 'react';
+import {  useEffect, useState } from 'react';
 
 
 import { GrNext } from "react-icons/gr";
 import { GrPrevious } from "react-icons/gr";
 import trustlyLogoImage from '../../assets/trustlyGreen.png';
 import { Spinner } from '../../components/Spinner';
+import { FieldBox } from '../../components/FieldBox';
 
-import { downloadKrakenResult } from '../../utils';
+import { 
+  downloadKrakenResult, 
+  getInputFieldsVisible, 
+  getStoredData,
+  deleteStoredData
+} from '../../utils';
+
+type FieldObject = {
+  label: string;
+  book_mark: boolean,
+  divField: string;
+  id: number
+};
 
 
 export function Home() {
@@ -14,7 +27,7 @@ export function Home() {
   const [pageURL, setPageUrl] = useState('');
   const [isKraken, setIsKraken] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+  const [fields, setFields] = useState<FieldObject[]>()
 
   async function handleDownloadCsv() {
     try {
@@ -46,34 +59,105 @@ export function Home() {
   function handleGetKrakenPage() {
     setIsKraken(!isKraken);
   }
+
+  async function handleGetFields() {
+    try {
+        const storedData = await getStoredData();
+        
+        if (storedData && Array.isArray(storedData)) {
+            // Sort fields alphabetically by label
+            const sortedFields = storedData.slice().sort((a, b) => a.label.localeCompare(b.label));
+            setFields(sortedFields);
+        } else {
+            setFields([]); // Set empty array if no data or incorrect data type
+        }
+    } catch (error) {
+        console.error('Error fetching stored data:', error);
+    }
+}
+
+  async function handleResetFields(){
+    try {
+      deleteStoredData();
+      await handleGetFields();
+    } catch (error) {
+      console.log('Error: ', error)
+    }
+  }
+  async function handleMapFields(){
+    try {
+      setIsLoading(true)
+       getInputFieldsVisible();
+       handleGetFields();
+      //setIsLoading(false);
+    } catch (error) {
+      console.log('Error: ', error)
+    }finally {
+      setIsLoading(false)
+    }
+  }
   
+
   useEffect(() => {
     getPageInfo();
+    //getInputFieldsVisible();
+    handleGetFields();
+    //deleteStoredData();
    },[])
 
   return (
     <>
       {isKraken ? (
-        <div className="max-w-xl w-96 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 
-        dark:border-gray-700 p-6">
+        <div className="max-w-xl w-[500px] border border-gray-200 rounded-lg shadow bg-white dark:bg-gray-800 
+        dark:border-gray-700 p-6 overflow-hidden">
+          
+          
             <div className='w-full flex justify-between'>
-
-            <button 
-            onClick={handleGetKrakenPage}
-            type='button'
-            >
-              <GrPrevious className='text-white'/>
-            </button>
-            <a target='_blank' href="https://trustly.okta.com/">
-                <img className="w-20" src={trustlyLogoImage} alt="" />
-            </a>
-
+              <button 
+              onClick={handleGetKrakenPage}
+              type='button'
+              >
+                <GrPrevious className='dark:text-white text-gray-600'/>
+              </button>
+              <a target='_blank' href="https://trustly.okta.com/">
+                  <img className="w-20" src={trustlyLogoImage} alt="" />
+              </a>
             </div>
 
-              <div>
+            <div className='mt-4'>
+              {fields 
+                ? <h3 className='text-gray-600 text-2xl dark:text-white'>Set fields to display</h3> 
+                : <h3 className='text-red-400 text-xl'>Click on the button Map fields to start</h3>
+              }
+            </div>
 
+              <div className="flex flex-wrap mt-6">
+                {fields?.map((item) => {
+                  return (
+                    <FieldBox 
+                    label={item.label} 
+                    book_mark={item.book_mark}
+                    handleGetFields={handleGetFields}
+                    />
+                  )
+                })}
+                <div className='w-full flex items-center gap-3 pl-3 pt-6 border-t border-t-gray-400'>
+                  <button
+                  onClick={handleMapFields}
+                  disabled={!!fields}
+                  className={`bg-green-400 text-white p-4 rounded-sm ${fields && fields.length > 0 ? 'disabled:opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    {!isLoading ? <span>Map Fields</span> : <Spinner />}
+                  </button>
+
+                  <button
+                  onClick={handleResetFields}
+                  className='bg-red-400 text-white p-4 rounded-sm'
+                  >
+                  Reset fields
+                  </button>
+                </div>
               </div>
-
 
         </div>
       ) : (
@@ -87,7 +171,7 @@ export function Home() {
             className='p-2 border-0'
             onClick={handleGetKrakenPage}
             type='button'>
-              <GrNext className='text-white'/>
+              <GrNext className='dark:text-white text-gray-600'/>
             </button>
           </div>
             
@@ -135,9 +219,13 @@ export function Home() {
               <div className="text-white" ></div>
             )}
           </div>
-          <div className='flex gap-1'>
-
-          </div>
+          {/* <div className='flex gap-1'>
+            <button
+            onClick={handleGetFields}
+            className='bg-slate-400 text-white h-10'>
+            GetFields
+            </button>
+          </div> */}
       
         </div>
       )}

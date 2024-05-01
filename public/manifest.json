@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "1.0.0",
+  "version": "2.3.4",
   "icons": {
     "16": "images/TGreen.png",
     "32": "images/TGreen.png",
@@ -33,7 +33,7 @@
       ],
       "css": ["pages/content/style.css"],
       "js": [
-        "content.js",
+        "content.ts",
         "pages/content/index.ts"
       ]
     }
@@ -44,7 +44,9 @@
         "images/icon.png",  
         "images/trustly_logo.png",
         "images/trustlyGreen.png",
-        "images/tea.png"
+        "images/tea.png",
+        "images/icon_filters.png",
+        "images/icon_check.png"
       ],
       "matches": ["<all_urls>"]
     }, 
