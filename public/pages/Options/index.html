@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console Extension</title>
+    <link rel="stylesheet" href="options.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" 
+    rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(31, 41, 55);
+            color: #fff;
+            font-family: 'roboto';
+        }
+
+        h3 {
+            color:#23f23c;
+        }
+        p {
+            font-size: small;
+        }
+        .container {
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+        .titleContainer {
+            display: flex;
+            flex-direction: column;
+             
+            & h3 {
+                margin-bottom: -10px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="titleContainer">
+            <h3>Admin Console Extension</h3>
+            <p>A guide to use the extension</p>
+        </div>
+        <div>
+            <h4>Fields displayed</h4>
+            <div>
+                <article>
+                    WHen you open Admin Console,  you can see all the fields that are common to any user. 
+                    You can remap it by clicking on the extension icon.
+                </article>
+                <p>
+                    Go to the extension icon on the top of your browser, if you have not, you can pin it, 
+                    Click on it and a pop up will be presented, on the top of that you can click on the button 
+                    <span>></span>
+                    No you have a button to Map Fields, it will read and save all the fields, 
+                    including the ones under <span>More Filters</span>.
+                    Reload your Admin page, all the displayed fields are cleared.
+                    Click on the extension go to <span>></span>.
+                    You can see now all the fields, click on each fields you want to display, it will be added 
+                    in the order you click on that.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="options.js">
+
+</script>
+</html>

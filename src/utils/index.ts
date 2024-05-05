@@ -118,7 +118,6 @@ type FieldObject = {
         });
     });
   }
-
   
   export async function getStoredData() {
   return new Promise((resolve, reject) => {
@@ -169,8 +168,7 @@ type FieldObject = {
             });
         });
     });
-}
-
+  }
 
   export async function deleteStoredData(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -184,3 +182,159 @@ type FieldObject = {
     });
   }
   
+  export async function setFieldsToTheFormTransactions() {
+    
+    const formPage = document.querySelector('#frmTransactions');
+    try {
+        const storedData = await getStoredData();
+        const divFieldVisible = document.createElement('div');
+        
+        divFieldVisible.id = 'divFieldVisible';
+        divFieldVisible.style.display = 'flex';
+        divFieldVisible.style.flexWrap = 'wrap';
+
+
+        if (storedData && Array.isArray(storedData)) {
+            fields = storedData;
+            //console.log(storedData)
+
+            const extractedValues = await getFieldValuesByUrl();
+            const { 
+                transactionId, 
+                merchantReference,
+                ppTransactionId,
+                teaId,
+                customerExternalId,
+                personId,
+                mctCustomerName,
+                paymentType,
+                transactionType,
+                transactionStatus,
+                merchantId,
+                paymentProviderId
+            } = extractedValues;
+
+            fields.forEach(item => {
+                if (item.book_mark === true) {
+
+                    const divElement = document.createElement('div');
+                    divElement.style.flexBasis = 'calc(25% - 2px)'; 
+                    
+                    const newItemDiv = document.createElement('div');
+                    newItemDiv.innerHTML = item.divField;
+                    const label = item.label;
+                    let selectElement;
+                    
+                    switch (label) {
+                        case 'Transaction Id:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', transactionId || '');
+                            break;
+                        case 'Merchant Reference:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', merchantReference || '') ;
+                            break;
+                        case 'FI Transaction Id:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', ppTransactionId || '') ;
+                            break;
+                        case 'TEA ID:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', teaId || '') ;
+                            break;
+                        case 'Customer External Id:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', customerExternalId || '') ;
+                            break;
+                        case 'Person ID:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', personId || '') ;
+                            break;
+                        case 'Customer Name:':
+                            newItemDiv.querySelector('input')?.setAttribute('value', mctCustomerName || '') ;
+                            break;
+                            case 'Payment Type:':
+                                // eslint-disable-next-line no-case-declarations
+                                const selectElement1 = newItemDiv.querySelector('select'); // Assign value inside the case block
+                                if (selectElement1) {
+                                    const typePayment = paymentType ? paymentType.split(',') : [];
+                                    selectElement1.querySelectorAll('option').forEach(option => {
+                                        if(typePayment.includes(option.value)) {
+                                            option.selected = true;
+                                            option.style.color = '#025939';
+                                            option.style.backgroundColor = '#d9ecd3';
+                                        }
+                                    })
+                                }
+                                break;
+                                case 'Transaction Type:':
+                                    // eslint-disable-next-line no-case-declarations
+                                    const selectElement2 = newItemDiv.querySelector('select');
+                                    if (selectElement2) {
+                                        // Loop through existing options and set selected based on URL values
+                                        const transactionTypes = transactionType ? transactionType.split(',') : [];
+                                        selectElement2.querySelectorAll('option').forEach(option => {
+                                            if (transactionTypes.includes(option.value)) {
+                                                option.selected = true;
+                                                option.style.color = '#025939';
+                                                option.style.backgroundColor = '#d9ecd3';
+                                            }
+                                        });
+                                        selectElement2.style.width = '187px';
+                                    }
+                                    break;
+                            case 'Transaction Status:':
+                               // eslint-disable-next-line no-case-declarations
+                               const selectElement3 = newItemDiv.querySelector('select'); 
+                                if (selectElement3) {
+                                    const statusTransaction = transactionStatus ? transactionStatus.split(',') : [];
+                                    selectElement3.querySelectorAll('option').forEach(option => {
+                                        if(statusTransaction.includes(option.value)) {
+                                            option.selected = true;
+                                            option.style.color = '#025939';
+                                            option.style.backgroundColor = '#d9ecd3';
+                                            //option.style.backgroundColor = 'transparent';
+                                            //option.style.color = 'red';
+                                        }
+                                    })
+                                }
+                                break;
+                            case 'Merchant:':
+                                selectElement = newItemDiv.querySelector('select'); // Assign value inside the case block
+                                if (selectElement) {
+                                    selectElement.value = merchantId || '';
+                                    //selectElement.style.width = '187px';
+                                }
+                                break;
+                            case 'FI:':
+                                selectElement = newItemDiv.querySelector('select'); // Assign value inside the case block
+                                if (selectElement) {
+                                    selectElement.value = paymentProviderId || '';
+                                    //selectElement.style.width = '187px';
+                                }
+                                break;
+                        default:
+                            break;
+                    }
+
+                    divElement.appendChild(newItemDiv);
+
+                    selectElement = newItemDiv.querySelector('select');
+                    if (selectElement) {
+                        selectElement.style.width = '187px';
+                    }
+
+                    divFieldVisible.appendChild(divElement);
+                }
+            });
+
+            if (formPage) {
+                const hrElement = formPage.querySelector('hr');
+                if (hrElement) {
+                    formPage.insertBefore(divFieldVisible, hrElement);
+                } else {
+                    formPage.appendChild(divFieldVisible);
+                }
+            }
+        } else {
+            // Handle case where no stored data or incorrect data format
+        }
+    } catch (error) {
+        console.error('Error fetching stored data:', error);
+    }
+}
+

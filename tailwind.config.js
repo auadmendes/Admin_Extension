@@ -12,5 +12,20 @@ export default {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    function ({ addUtilities }) {
+      const newUtilities = {
+        '.no-scrollbar::-webkit-scrollbar': {
+          display: 'none',
+        },
+        '.no-scrollbar': {
+          '-ms-overflow-style': 'none', // For IE and Edge
+          'scrollbar-width': 'none', // For Firefox
+          overflow: '-moz-scrollbars-none', // For Firefox (alternative)
+        },
+      };
+
+      addUtilities(newUtilities, ['responsive', 'dark']);
+    },
+  ],
 }

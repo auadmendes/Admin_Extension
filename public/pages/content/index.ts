@@ -64,6 +64,45 @@ function showToast(message) {
     }, 2000); 
 }
 
+    function tooltipToast(htmlContent, element) {
+        const toast = document.createElement('div');
+        toast.classList.add('toast');
+        toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
+
+        // Position the toast next to the element
+        const rect = element.getBoundingClientRect();
+        toast.style.top = `${rect.top}px`;
+        toast.style.left = `${rect.right + 120}px`;
+        //toast.style.display = 'flex';
+        //toast.style.flex = '';
+
+
+        document.body.appendChild(toast);
+
+        // Show the toast
+        toast.style.opacity = "1";
+
+        // Remove toast when mouse leaves the element or the toast itself
+        function removeToast() {
+            toast.style.opacity = "0";
+            setTimeout(() => {
+                toast.remove();
+            }, 500);
+        }
+
+        element.addEventListener('mouseleave', removeToast);
+        toast.addEventListener('mouseleave', removeToast);
+    }
+
+// // Example usage
+// const tooltipTrigger = document.querySelector('.tooltip-trigger');
+
+// if (tooltipTrigger) {
+//     tooltipTrigger.addEventListener('mouseover', event => {
+//         showToast("This is a tooltip message", event.target);
+//     });
+// }
+
 // async function rearrangeInputs() {
 //     const inputStatus = document.querySelector('#frmTransactions div:nth-child(13)');
 //     const inputPerson = document.querySelector('#hidden-filters div:nth-child(43)');
@@ -102,6 +141,8 @@ async function paymentTab() {
     const pending = document.querySelector('#payment tbody tr:nth-child(19) td:nth-child(2)')?.textContent;
 
     paymentBoxUl = document.createElement('ul');
+    paymentBoxUl.style.background = 'transparent';
+
     paymentBoxUl.id = 'paymentBox';
 
     paymentBoxUl.innerHTML += `<h4>Payment</h4>`;
@@ -134,7 +175,7 @@ async function paymentTab() {
     
 // }
 
-async function someAllAmountsOnThePage() {
+async function someAllAmountsOnThePage() { 
     const rows = document.querySelectorAll('#sortabletable tbody tr');
     let totalAmount = 0;
     let amount;
@@ -187,14 +228,15 @@ async function someAllAmountsOnThePage() {
 
 async function tabTransaction() {
 
-   
     const merchantReference = document.querySelector('.table tbody tr:first-child td:nth-child(7)')?.textContent;
     const originalTransaction = document.querySelector('#transaction tbody tr:nth-child(3) td:nth-child(2) a:first-child')?.textContent;
     const statusCode = document.querySelector('#transaction tbody tr:nth-child(16) td:nth-child(2)')?.textContent;
     const isVip = document.querySelector('#fi-transaction tbody tr:nth-child(23) td:nth-child(2)')?.textContent;
-
     const branchIconPath = chrome.runtime.getURL("images/icon.png");
     const teaICon = chrome.runtime.getURL("images/tea.png");
+    const visibleICon = chrome.runtime.getURL("images/visible.png");
+    
+   
 
     setTimeout(() => {
         const button = document.querySelector('.panel-body .btn.btn-default:nth-child(2)');
@@ -210,12 +252,159 @@ async function tabTransaction() {
 
     const eventsTableDescription = document.querySelector('#events #sortabletable tbody');
     const eventsTable = document.querySelector('#events #sortabletable tbody');
+
     let denyDescription; 
     let eventsTitle;
     let returnCodeValue;
     let liReturnCode; 
+    let eventsData
 
-    // Check if the table exists
+    // let attributesEvent;
+    
+    // let titleEvent;
+    // let eventsData = {};
+    const matchingEvents = [];
+    let titleEvent;
+    let eventDate;
+
+    if (eventsTable) {
+        const rows = eventsTable.querySelectorAll('tr');
+
+        if (rows && rows.length > 0) {
+            rows.forEach(row => {
+                if (row.cells && row.cells.length > 2) {
+                    eventDate = row.cells[0].textContent;
+                    titleEvent = row.cells[1].textContent;
+                    const attributesEvent = row.cells[2].textContent;
+                    
+                    console.log(row.cells[0].textContent, '===============')
+                    console.log(eventDate, ' ++++++++++++++++++++++++++++++++')
+
+                    switch (true) {
+                        case attributesEvent?.includes('R01'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R01',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R02'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R02',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R03'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R03',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R04'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R04',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R05'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R0',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R06'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                title: titleEvent,
+                                status: 'R06',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R07'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R07',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R08'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R08',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R09'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R09',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R10'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R10',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R16'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R16',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        default:
+                            // Handle default case if needed
+                            break;
+                    }
+                }
+            });
+
+            console.log('Matching events:', matchingEvents);
+        } else {
+            console.log('No rows found in eventsTable');
+        }
+    } else {
+        console.log('No eventsTable found');
+    }
+
     if (eventsTable) {
         // Get all td elements in the table body
         const cells = eventsTable?.querySelectorAll('td');
@@ -247,8 +436,7 @@ async function tabTransaction() {
         console.log('No eventsTable found');
     }
 
-    
-    // Check if the table exists
+  
     if (eventsTable) {
         // Get all rows (tr) in the table body
         const rows = eventsTableDescription?.querySelectorAll('tr');
@@ -300,6 +488,8 @@ async function tabTransaction() {
     
 
     transactionBoxUl = document.createElement('ul');
+    transactionBoxUl.style.background = 'transparent';
+
     transactionBoxUl.id = 'transactionBox';
 
 
@@ -313,34 +503,70 @@ async function tabTransaction() {
         </a>
     </li>`;
 
-    setTimeout(() => {
-        if(teaID) {
-            transactionBoxUl.innerHTML += `<li class="teaID">
-            <a target="_bank"  href="https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=${teaID}&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=ir8v69jp4bbo4fkvkde3va2035">
+// Display "Loading..." message before the timeout
+transactionBoxUl.innerHTML += `<li class="loading" style="color: red;">Loading...</li>`;
+
+setTimeout(() => {
+    // Remove the "Loading..." message
+    const loadingLi = document.querySelector('.loading');
+    if (loadingLi) {
+        loadingLi.remove();
+    }
+
+    // Add the actual content based on the condition
+    if (teaID) {
+        transactionBoxUl.innerHTML += `<li class="teaID">
+            <a target="_bank" href="https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=${teaID}&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=ir8v69jp4bbo4fkvkde3va2035">
                 Tea ID: ${teaID} 
             </a>
-            <img style="width: 18px" src=${teaICon} alt="Branches Icon" />
-        </li>`
-        } else {
-            transactionBoxUl.innerHTML += `<li class="teaID">
+            <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
+        </li>`;
+    } else {
+        transactionBoxUl.innerHTML += `<li class="teaID">
             Tea ID not found
-            <img style="width: 18px" src=${teaICon} alt="Branches Icon" />
-        </li>`
-        }
-    },4000)
+            <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
+        </li>`;
+    }
+}, 4000);
+
+
+    //////////////////////////////////////////////
+
+
+
 
     //////////////////////////////////////////////
     
+
+    const tooltipHTML = `<ul style="list-style-type: none; margin-left: -10px; padding: 3px 8px 1px 15px;"> 
+        ${matchingEvents.map(event => `<li style="padding-left: -10px;"> 
+        ${event.date} - ${event.title} - ${event.status}
+        </li>`).join('')}
+    </ul>`;
+
+    if (liReturnCode) {
+        transactionBoxUl.innerHTML += `<li class="tooltip-trigger" style="cursor: help; padding: 10px 2px 10px 3px;">
+            Return: 
+            <span style="color: red;">${liReturnCode}</span>
+            ${matchingEvents.length > 0 ? `<img style="width: 18px;" src="${visibleICon}" alt="Branches Icon" />` : ''}
+        </li>`;
+    } else {
+        transactionBoxUl.innerHTML += `
+            <li class="tooltip-trigger" style="color: #ccc; text-decoration: line-through; cursor: help; padding: 10px 2px 10px 3px;">
+                Return: not found 
+                ${matchingEvents.length > 0 ? `<img style="width: 18px;" src="${visibleICon}" alt="Branches Icon" />` : ''}
+            </li>`;
+    }
+    
+    
+
+
+
+
     if(statusCode !== ''){
         transactionBoxUl.innerHTML += `<li>Status: ${statusCode}</li>`
     } else {
         transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Status: not found</li>`
-    }
-
-    if(liReturnCode) {
-        transactionBoxUl.innerHTML += `<li>Return: <span style="color: red;">${liReturnCode}</span></li>`
-    } else {
-        transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Return: not found</li>`
     }
 
     
@@ -354,6 +580,15 @@ async function tabTransaction() {
         transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">VIP: <span> not found</span></li>`
     }
 
+    transactionBoxUl.addEventListener('mouseover', function(event) {
+        const target = event.target;
+        if (target.tagName === 'LI' && target.classList.contains('tooltip-trigger')) {
+            if(matchingEvents.length > 0) {
+                tooltipToast(tooltipHTML, target); // Pass tooltipHTML as HTML content
+            }
+        }
+    });
+    
 
 }
 
@@ -377,13 +612,16 @@ async function tabFiTransaction() {
      const isGuaranteed = document.querySelector('#fi-transaction tbody tr:nth-child(21) td:nth-child(2)')?.textContent;
      const linkElement = document.querySelector('#fi-transaction tbody tr:nth-child(1) td:nth-child(2) a');
      const fiTransactionId = linkElement?.textContent?.trim();
-    
+     const copyICon = chrome.runtime.getURL("images/copy.png");
     
 
     let message;
     //let expectedDate;
 
     fiBoxUl = document.createElement('ul');
+    fiBoxUl.style.background = 'transparent';
+
+
     fiBoxUl.id = 'FIBox';
     let expectedDate;
     let daysDifference;
@@ -453,13 +691,22 @@ async function tabFiTransaction() {
 
     if(isGuaranteed !== ''){
 
-        fiBoxUl.innerHTML += `<li>Guaranteed?: <span style="color: red;"> ${isGuaranteed ? isGuaranteed : "no data"}</span></li>`
+        fiBoxUl.innerHTML += `<li>Guaranteed?: 
+            <span style="color: red;"> 
+                 ${isGuaranteed ? isGuaranteed : "no data"}
+            </span>
+        </li>`
     }else {
         fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Guaranteed?: <span> no data found}</span></li>`
     }
 
     if(fiTransactionId !== ''){
-        fiBoxUl.innerHTML += `<li>Fi Trx ID: <span class="copyable" style="color: red; cursor: pointer;">${fiTransactionId}</span></li>`;
+        fiBoxUl.innerHTML += `<li>
+            <span class="copyable" style="color: red; cursor: pointer;">
+            <img style="width: 18px" src=${copyICon} alt="Branches Icon" />
+                ${fiTransactionId}
+            </span>
+        </li>`;
     }else {
         fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Fi Trx ID: <span class="copyable">not found</span></li>`;
     }
@@ -487,6 +734,8 @@ async function tabAccountCustomer() {
     const customerExternalID = document.querySelector('#info .table-hover tr:nth-child(3) td:nth-child(2)')?.textContent?.trim();
 
     accountCustomerBoxUl = document.createElement('ul');
+    accountCustomerBoxUl.style.background = 'transparent';
+
     accountCustomerBoxUl.id = 'customerInfoBox';
 
 
@@ -546,6 +795,7 @@ async function creatingTheBoxInfo(){
         tabAccountCustomer();
 
         const boxContent = document.createElement('div');
+        //boxContent.style.background = 'transparent';
         divContent.parentNode?.insertBefore(boxContent, divContent);
 
         boxContent.classList.add('boxAgentTools');

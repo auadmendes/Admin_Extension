@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "2.3.4",
+  "version": "2.4.0",
   "icons": {
     "16": "images/TGreen.png",
     "32": "images/TGreen.png",
@@ -46,7 +46,9 @@
         "images/trustlyGreen.png",
         "images/tea.png",
         "images/icon_filters.png",
-        "images/icon_check.png"
+        "images/icon_check.png",
+        "images/copy.png",
+        "images/visible.png"
       ],
       "matches": ["<all_urls>"]
     }, 
@@ -55,5 +57,7 @@
       "matches": ["<all_urls>"],
       "use_dynamic_url": true
     }
-  ]
+  ],
+  "options_page": "pages/Options/index.html"
+
 }
