@@ -98,22 +98,6 @@ let  fields  = []
         return extractedValues;
     }
     
-
-    // async function removeDivsUntilHr() {
-    //     const form = document.querySelector('#frmTransactions');
-    //     if (form) {
-    //         const children = form.children;
-    //         for (let i = 0; i < children.length; i++) {
-    //             const child = children[i];
-    //             if (child.tagName === 'hr') {
-    //                 break; // Stop when we find an hr tag
-    //             } else if (child.classList.contains('col-sm-3')) {
-    //                 form.removeChild(child); // Remove divs with col-sm-3 class
-    //                 i--; // Decrement i because the child nodes list length has decreased
-    //             }
-    //         }
-    //     }
-    // }
     
     async function getStoredData() {
         return new Promise((resolve, reject) => {
@@ -132,85 +116,6 @@ let  fields  = []
         });
     }
 
-    // async function setFieldsToTheFormTransactions() {
-    //     const formPage = document.querySelector('#frmTransactions');
-    //     try {
-    //         const storedData = await getStoredData();
-    //         const divFieldVisible = document.createElement('div');
-
-    //         if (storedData && Array.isArray(storedData)) {
-    //             fields = storedData;
-
-    //             fields.forEach(item => {
-    //                 //const labelElement = document.createElement('label');
-    //                 //labelElement.textContent = item.label;
-
-    //                 if(item.book_mark === true) {
-    //                 const divElement = document.createElement('div');
-    //                 divElement.style.width = '200px';
-    //                 //divElement.appendChild(labelElement);
-
-    //                 // Create a new div element and set its innerHTML to item.div
-    //                 const newItemDiv = document.createElement('div');
-    //                 newItemDiv.innerHTML = item.divField;
-
-    //                 // Append the new div element containing HTML content to divElement
-    //                 divElement.appendChild(newItemDiv);
-
-    //                 divFieldVisible.appendChild(divElement);
-    //                 }
-    //             });
-
-    //             if (formPage) {
-    //                 formPage.appendChild(divFieldVisible);
-    //             }
-
-    //             //console.log('--------', fields);
-    //         } else {
-    //             // Handle case where no stored data or incorrect data format
-    //         }
-
-    //         //console.log(storedData);
-    //         // Use the storedData as needed in your other page
-    //     } catch (error) {
-    //         console.error('Error fetching stored data:', error);
-    //     }
-    // }
-
-
-    // async function removeDivsUntilClearfix() {
-    //     const form = document.querySelector('#frmTransactions');
-    //     if(form) {
-    //         const children = form.children;
-    //         for (let i = 0; i < children.length; i++) {
-    //             const child = children[i];
-    //             if (child.classList.contains('clearfix')) {
-    //                 break; // Stop when we find the clearfix div
-    //             } else if (child.classList.contains('col-sm-3')) {
-    //                 form.removeChild(child); // Remove divs with col-sm-3 class
-    //                 i--; // Decrement i because the child nodes list length has decreased
-    //             }
-    //         }
-    //     }
-    
-        
-    // }
-
-    // async function removeDivsUntilHr() {
-    //     const form = document.querySelector('#frmTransactions');
-    //     if (form) {
-    //         const children = form.children;
-    //         for (let i = 0; i < children.length; i++) {
-    //             const child = children[i];
-    //             if (child.tagName === 'hr') {
-    //                 break; // Stop when we find an hr tag
-    //             } else if (child.classList.contains('col-sm-3')) {
-    //                 form.removeChild(child); // Remove divs with col-sm-3 class
-    //                 i--; // Decrement i because the child nodes list length has decreased
-    //             }
-    //         }
-    //     }
-    // }
 
    async function setFieldsToTheFormTransactions() {
         const formPage = document.querySelector('#frmTransactions');
@@ -367,124 +272,6 @@ let  fields  = []
         }
     }
 
-    // async function darkMode() {
-
-    //     // const style = document.createElement('style');
-    //     // document.head.appendChild(style);
-
-
-
-    //     // const transactionId = document.querySelector('transactionId');
-    //     // const merchantReference = document.querySelector('merchantReference');
-    //     // const customerExternalId = document.querySelector('customerExternalId');
-    //     // const personId = document.querySelector('personId');
-    //     // const mctCustomerName = document.querySelector('mctCustomerName');
-    //     // const teaId = document.querySelector('teaId');
-    //     // const ppTransactionId = document.querySelector('ppTransactionId');
-    //     // const merchantId = document.querySelector('merchantId');
-    //     // const paymentProviderId = document.querySelector('paymentProviderId');
-
-    //     // const transactions = transactionId?.querySelector('input')
-    //     // const external = customerExternalId?.querySelector('input')
-    //     // const person = personId?.querySelector('input')
-    //     // const name = mctCustomerName?.querySelector('input')
-    //     // const tea = teaId?.querySelector('input')
-    //     // const ptx = ppTransactionId?.querySelector('input')
-    //     // const merchant = merchantId?.querySelector('input')
-    //     // const payment = paymentProviderId?.querySelector('input')
-    //     // const inputMR = merchantReference?.querySelector('input');
-
-    //     // if(transactions
-    //     //     && external
-    //     //     && person
-    //     //     && name
-    //     //     && tea
-    //     //     && ptx
-    //     //     && merchant
-    //     //     && payment
-    //     //     && inputMR) {
-    //     //         external.style.background = '#3F4040';
-    //     //         person.style.background = '#3F4040';
-    //     //         name.style.background = '#3F4040';
-    //     //         tea.style.background = '#3F4040';
-    //     //         ptx.style.background = '#3F4040';
-    //     //         merchant.style.background = '#3F4040';
-    //     //         payment.style.background = '#3F4040';
-    //     //         inputMR.style.background = '#3F4040';
-    //     //     }
-
-
-    //     // const bodyPage = document.querySelector('body')
-    //     // const head = document.querySelector('head');
-    //     // const nav = document.querySelector('nav');
-    //     // const inputElements = document.querySelectorAll('input');
-    //     // const tables = document.querySelectorAll('table');
-
-    
-    //     // if (bodyPage) {
-    //     //     bodyPage.style.background = '#3F4040';
-    //     //     bodyPage.style.color = '#BFBDBA';
-    //     // }
-
-    //     // if (head) {
-    //     //     head.setAttribute('style', 'background: rgb(63, 64, 64);');
-    //     // } else {
-    //     //     console.error('Head element not found!');
-    //     // }
-
-    //     // if(nav) {
-    //     //     nav.setAttribute('style', 'background: #3F4040; color: #BFBDBA;');
-    //     // }
-
-    //     // // Check if the input element exists
-    //     // inputElements.forEach(input => {
-    //     //     // Set the new background color for each input element
-    //     //     input.style.backgroundColor = ' #3F4040';
-    //     // });
-
-    //     // tables.forEach(table => {
-    //     //     // Get all rows in the current table
-    //     //     const rows = table.querySelectorAll('tr');
-        
-    //     //     // Loop through each row
-    //     //     rows.forEach(row => {
-    //     //         console.log(row.classList)
-    //     //         // Check if the row has the class "Danger"
-    //     //         if (row.classList.contains('Danger')) {
-    //     //             // Add your new class and replace any existing class
-    //     //             row.classList.remove('Danger'); // Remove the existing class if needed
-    //     //             //row.classList.add('YourNewClass');
-    //     //             row.setAttribute('style', 'background: blue')
-    //     //         }
-    //     //     });
-    //     // });
-
-    //     // // if(table) {
-    //     // //     table.setAttribute('style', 'background: #3F4040')
-    //     // // }
-
-
-
-
-    //     // const htmlElement = document.documentElement;
-
-    //     // // Check if the <html> element exists
-    //     // if (htmlElement) {
-    //     //     // Set the new background color
-    //     //     htmlElement.style.backgroundColor = 'lightblue';
-    //     // } else {
-    //     //     console.error('HTML element not found!');
-    //     // }
-
-    //     let css = 'html {-webkit-filter: invert(100%);' +
-    //         '-moz-filter: invert(100%);' +
-    //         '-0-filter: invert(100%);' +
-    //         '-ms-filter: invert(100); }'
-
-    //     head
-
-    // }
-    
 
     async function checkIsDarkModeSaved() {
         chrome.storage.local.get('isDark', function (result) {
@@ -587,10 +374,5 @@ let  fields  = []
         }
     }
 
-   
 
-//   getInputFieldsVisible()
-//   setFieldsToTheFormTransactions();
-//   removeDivsUntilHr();
-  
-  initiateFields();
+    initiateFields();

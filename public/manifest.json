@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "2.4.0",
+  "version": "3.0.0",
   "icons": {
     "16": "images/TGreen.png",
     "32": "images/TGreen.png",
@@ -48,7 +48,9 @@
         "images/icon_filters.png",
         "images/icon_check.png",
         "images/copy.png",
-        "images/visible.png"
+        "images/visible.png",
+        "images/copy_selected_icon.png",
+        "images/copy_all_icon.png"
       ],
       "matches": ["<all_urls>"]
     }, 

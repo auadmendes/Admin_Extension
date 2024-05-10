@@ -1,5 +1,3 @@
-
-
 let transactionBoxUl;
 let paymentBoxUl;
 let fiBoxUl;
@@ -64,70 +62,35 @@ function showToast(message) {
     }, 2000); 
 }
 
-    function tooltipToast(htmlContent, element) {
-        const toast = document.createElement('div');
-        toast.classList.add('toast');
-        toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
+function tooltipToast(htmlContent, element) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
 
-        // Position the toast next to the element
-        const rect = element.getBoundingClientRect();
-        toast.style.top = `${rect.top}px`;
-        toast.style.left = `${rect.right + 120}px`;
-        //toast.style.display = 'flex';
-        //toast.style.flex = '';
+    // Position the toast next to the element
+    const rect = element.getBoundingClientRect();
+    toast.style.top = `${rect.top}px`;
+    toast.style.left = `${rect.right + 120}px`;
+    //toast.style.display = 'flex';
+    //toast.style.flex = '';
 
 
-        document.body.appendChild(toast);
+    document.body.appendChild(toast);
 
-        // Show the toast
-        toast.style.opacity = "1";
+    // Show the toast
+    toast.style.opacity = "1";
 
-        // Remove toast when mouse leaves the element or the toast itself
-        function removeToast() {
-            toast.style.opacity = "0";
-            setTimeout(() => {
-                toast.remove();
-            }, 500);
-        }
-
-        element.addEventListener('mouseleave', removeToast);
-        toast.addEventListener('mouseleave', removeToast);
+    // Remove toast when mouse leaves the element or the toast itself
+    function removeToast() {
+        toast.style.opacity = "0";
+        setTimeout(() => {
+            toast.remove();
+        }, 500);
     }
 
-// // Example usage
-// const tooltipTrigger = document.querySelector('.tooltip-trigger');
-
-// if (tooltipTrigger) {
-//     tooltipTrigger.addEventListener('mouseover', event => {
-//         showToast("This is a tooltip message", event.target);
-//     });
-// }
-
-// async function rearrangeInputs() {
-//     const inputStatus = document.querySelector('#frmTransactions div:nth-child(13)');
-//     const inputPerson = document.querySelector('#hidden-filters div:nth-child(43)');
-    
-//     const ppStatusTrs = document.querySelector('#frmTransactions div:nth-child(8)');
-//     const externalID = document.querySelector('#hidden-filters div:nth-child(5)');
-
-//     //const inputPersonID = document.querySelector('#personId');
-//     //const inputExternalID = document.querySelector('#customerExternalId');
-    
-//     if(inputPerson && inputStatus) {
-//         //inputPersonID.style.borderColor = '#025939';
-
-//         //inputPerson.style.border = '1px solid #025939';
-
-//         inputStatus.replaceWith(inputPerson);
-//     }
-
-//     if(ppStatusTrs && externalID) {
-//         //inputExternalID.style.borderColor = '#025939';
-
-//         ppStatusTrs.replaceWith(externalID);
-//     }
-
-// }
+    element.addEventListener('mouseleave', removeToast);
+    toast.addEventListener('mouseleave', removeToast);
+}
 
 async function paymentTab() {
 
@@ -156,74 +119,97 @@ async function paymentTab() {
     //creatingTheBoxInfo();
 }
 
-// async function someAllAmountsOnThePage() {
-
-//     const originalTransaction = document.querySelector('#sortabletable tbody tr:nth-child(3) td:nth-child(17)')?.textContent;
-//     const linkOriginalTransaction = document.createElement('a');
-//     linkOriginalTransaction.href =  `https://trustly.one/admin-console/transactions/details/${originalTransaction}`; //urlOriginalTransaction;
-//     const infoPaid = document.querySelector('#payment tbody tr:nth-child(15) td:nth-child(2)')?.textContent;
-//     const refunded = document.querySelector('#payment tbody tr:nth-child(16) td:nth-child(2)')?.textContent;
-//     const reversed = document.querySelector('#payment tbody tr:nth-child(17) td:nth-child(2)')?.textContent;
-//     const balance = document.querySelector('#payment tbody tr:nth-child(18) td:nth-child(2)')?.textContent;
-//     const pending = document.querySelector('#payment tbody tr:nth-child(19) td:nth-child(2)')?.textContent;
-
-//     paymentBoxUl = document.createElement('div');
-//     paymentBoxUl.id = 'someAllAmount';
-
-//     paymentBoxUl.innerHTML += `<h4>Payment</h4>`;
-//     paymentBoxUl.innerHTML += `<li>Original: <a href="${linkOriginalTransaction}">${originalTransaction}</a></li>`;
-    
-// }
-
 async function someAllAmountsOnThePage() { 
-    const rows = document.querySelectorAll('#sortabletable tbody tr');
     let totalAmount = 0;
-    let amount;
+    let amount = 0;
+    let checkedCount = 0;
+    const rows = document.querySelectorAll('#sortabletable tbody tr');
+    const resetButton = document.querySelector('#reset-search');
+    const checkboxAll = document.querySelector('#sortabletable thead th input[type="checkbox"]');
+
+    if (checkboxAll instanceof HTMLInputElement) {
+        checkboxAll.addEventListener('change', () => {
+            if (checkboxAll.checked) {
+                console.log('Checking all checkboxes');
+                checkedCount = 0;
+                rows.forEach(row => {
+                    const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
+                    if (amountText !== undefined) {
+                        amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
+                        if (!isNaN(amount)) {
+                            totalAmount += amount;
+                            checkedCount++;
+                        }
+                    }
+                });
+            } else {
+                console.log('Unchecking all');
+                totalAmount = 0;
+                checkedCount = 0;
+            }
+            updateTotalAmount(totalAmount, checkedCount);
+        });
+    }
+
     rows.forEach(row => {
-        const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
-        if(amountText !== undefined) {
-             amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
-        }
-        if (!isNaN(amount)) {
-            totalAmount += amount;
+        const checkbox = row.querySelector('td:nth-child(1) input[type="checkbox"]');
+        if (checkbox instanceof HTMLInputElement) { 
+            checkbox.addEventListener('change', () => {
+                const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
+
+                if(amountText !== undefined) {
+                    amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
+                    if (!isNaN(amount)) {
+                        if (checkbox.checked) {
+                            totalAmount += amount;
+                            checkedCount++;
+                        } else {
+                            totalAmount -= amount; 
+                            checkedCount--;
+                        }
+                        updateTotalAmount(totalAmount, checkedCount);
+                    }
+                }
+            });
+        } else {
+            console.error('Checkbox not found or invalid selector');
         }
     });
 
-    const resetButton  = document.querySelector('#reset-search');
-
-    if (resetButton) {
-
-        // resetButton.style.backgroundColor = '#105FA6';
+    if (resetButton instanceof HTMLInputElement) {
         resetButton.style.color = '#fff';
-        resetButton.style.borderRadius = '4px';
-        //resetButton.style.marginTop = '5px';
+
         resetButton.classList.add('btn', 'btn-primary');
+
         const newDiv = document.createElement('div');
-        
-        
+
         newDiv.style.display = 'inline-block';
         newDiv.style.alignItems = 'center';
         newDiv.style.justifyContent = 'center';
         newDiv.style.background = '#d9ecd3';
         newDiv.style.padding = '7px 10px 8px 10px';
-        //newDiv.style.paddingBottom = '10px';
         newDiv.style.marginLeft = '5px';
         newDiv.style.borderRadius = '4px';
         newDiv.style.marginTop = '5px';
+        newDiv.innerHTML = `<span style="color: #025939;"> 
 
+            Checked: <span id="checkedCountDisplay">${checkedCount}</span>
 
-        newDiv.innerHTML = `<span style="color: #025939;"> Total amount:
-            <span style="color: #012340;">
-            $${totalAmount.toFixed(2)}
-            </span>
-        </span>`
+            Total: <span id="totalAmountDisplay" style="color: #012340;">Total: $${totalAmount.toFixed(2)}</span>
 
-
+        </span>`;
         resetButton.insertAdjacentElement('afterend', newDiv);
     }
+}
 
-
-        //console.log('Total Amount:', totalAmount.toFixed(2));
+function updateTotalAmount(amount, checkedCount) {
+    const totalAmountDisplay = document.getElementById('totalAmountDisplay');
+    const checkedCountDisplay = document.getElementById('checkedCountDisplay');
+    
+    if (totalAmountDisplay && checkedCountDisplay) {
+        totalAmountDisplay.textContent = `$${amount.toFixed(2)}`;
+        checkedCountDisplay.textContent = checkedCount;
+    }
 }
 
 async function tabTransaction() {
@@ -377,6 +363,16 @@ async function tabTransaction() {
                                 date: eventDate,
                                 title: titleEvent,
                                 status: 'R10',
+                            };
+                            matchingEvents.push(eventsData);
+                            break;
+                        case attributesEvent?.includes('R11'):
+                            // Add more cases as needed
+                            // eslint-disable-next-line no-case-declarations
+                            eventsData = {
+                                date: eventDate,
+                                title: titleEvent,
+                                status: 'R11',
                             };
                             matchingEvents.push(eventsData);
                             break;
@@ -815,6 +811,8 @@ async function creatingTheBoxInfo(){
 
 async function createGroup() { 
     const group = document.querySelector('.btn-group ul');
+    const copySelectIcon = chrome.runtime.getURL("images/copy_selected_icon.png");
+    const copyAllIcon = chrome.runtime.getURL("images/copy_all_icon.png");
 
         if(group) {
             const liSelectedPtx = document.createElement('li');
@@ -833,10 +831,30 @@ async function createGroup() {
             newLinkRef.href ='#';
             newLinkSelectedMerchantRef.href ='#';
 
-            newLinkSelectedPtx.textContent = 'Copy Selected PTX'
-            newLinkSelectedPtxAll.textContent = 'Copy All PTXs'
-            newLinkRef.textContent = 'Copy All. M. Ref'
-            newLinkSelectedMerchantRef.textContent = 'Copy Select. M. Ref'
+            newLinkSelectedPtx.innerHTML = `<span>
+                <img style="width: 20px;" src=${copySelectIcon} />
+                Selected PTX
+            </span>`
+
+            newLinkSelectedMerchantRef.innerHTML = `<span>
+                <img style="width: 20px;" src=${copySelectIcon} />
+                Merchant Ref.
+            </span>`
+
+            newLinkSelectedPtxAll.innerHTML = `<span>
+                <img style="width: 20px;" src=${copyAllIcon} />
+                All PTXs
+            </span>`
+
+            newLinkRef.innerHTML = `<span>
+                <img style="width: 20px;" src=${copyAllIcon} />
+                All. Merchant. Ref
+            </span>`
+
+            //newLinkSelectedPtx.textContent = 'Copy Selected PTX'
+            //newLinkSelectedPtxAll.textContent = 'Copy All PTXs'
+            //newLinkRef.textContent = 'Copy All. M. Ref'
+            //newLinkSelectedMerchantRef.textContent = 'Copy Select. M. Ref'
 
             newLinkSelectedPtx.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -860,13 +878,13 @@ async function createGroup() {
 
             liSelectedPtx.appendChild(newLinkSelectedPtx);
             liPtxAll.appendChild(newLinkSelectedPtxAll);
-            liRef.appendChild(newLinkRef);
             liMRef.appendChild(newLinkSelectedMerchantRef);
+            liRef.appendChild(newLinkRef);
 
             group.appendChild(liSelectedPtx);
             group.appendChild(liPtxAll);
-            group.appendChild(liRef);
             group.appendChild(liMRef);
+            group.appendChild(liRef);
         }
        
 }
@@ -1038,174 +1056,155 @@ async function copyAllMerchantReferenceToClipboard() {
 }
 
 async function addLinkToMerchantReferenceOnTransactionsList() {
-    
-    const dataTransactionsTable = document.querySelector('#sortabletable');
+    const transactionsTable = document.querySelector('#sortabletable');
+  
+    if (!transactionsTable) return; // Exit if table not found
+  
+    const breakAllTds = Array.from(transactionsTable.querySelectorAll('tbody tr .break-all'));
+  
+    breakAllTds.forEach(td => {
+      td.innerHTML = `<a target="_blank" href="https://trustly.one/admin-console/transactions?merchantReference=${td.textContent}">${td.textContent}</a>`;
+    });
+  
+    const transactionsRows = Array.from(transactionsTable.querySelectorAll('tbody tr'));
+  
+    transactionsRows.forEach(row => {
+      const tdTransactionId = row.querySelector('td:nth-child(2) a');
+  
+      if(tdTransactionId instanceof HTMLElement) {
+          tdTransactionId.setAttribute('target', '_blank');
 
-    if(dataTransactionsTable) {
-        const breakAllTds = Array.from(dataTransactionsTable.querySelectorAll('tbody tr .break-all'));
-
-
-        breakAllTds.forEach(td => {
-            if (td.textContent !== null) {
-                const tdMerchantReference = td
-                
-                tdMerchantReference.innerHTML = `<a target="_blank" href="https://trustly.one/admin-console/transactions?merchantReference=${td.textContent}">${td.textContent}</a>`
-
-            }
-        });
-
-
-
-        const transactionTable = document.querySelector('#sortabletable');
-
-        if (transactionTable) {
-            const transactionsRows = Array.from(transactionTable.querySelectorAll('tbody tr'));
-
-            transactionsRows.forEach(row => {
-
-                const tdTransactionId = row.querySelector('td:nth-child(2) a'); 
-                //const tdiTransaction = row.querySelector('td:nth-child(2)'); 
-
-                if (tdTransactionId && tdTransactionId.href) {
-                    tdTransactionId.setAttribute('target', '_blank');
-                    //tdiTransaction.style.borderColor = '#ff0000';
-                }
-            });
-        }
-    }
+        //if (tdTransactionId && tdTransactionId.href) {
+          //}
+      }
+    });
 }
+  
 
 async function changeLogo() {
-    //const imageLogoTrustly = chrome.runtime.getURL("images/trustly_logo.png");
     const trustlyLogoGreen = chrome.runtime.getURL("images/trustlyGreen.png");
-
+  
     const anchorElement = document.getElementById('pwmb-brand');
-            
-    if(anchorElement) {
-        anchorElement.style.background = `transparent url(${trustlyLogoGreen}) no-repeat scroll left center`;
-        anchorElement.style.backgroundSize = '160px';
+  
+    if (anchorElement) {
+      anchorElement.style.background = `transparent url(${trustlyLogoGreen}) no-repeat scroll left center / 160px`;
+    } else {
+      //console.warn("Couldn't find element with id 'pwmb-brand'");
     }
-}
-
-// async function changeButtonTransactionsPage() {
-//     const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
-
-//     const moreFilter = document.querySelector('#toggle-filters');
-
-//     const span = `
-//         <span>
-//             <img src="${iconFilter}" style="height: 20px; margin-right: 5px;">
-//             More Filters 2
-//         </span>
-//     `;
-
-//     // Insert the span element into the moreFilter element as its first child
-//     moreFilter?.insertAdjacentHTML('afterbegin', span);
-
-//     moreFilter.style.backgroundColor = '#28A745';
-//     moreFilter.style.color = '#fff';
-//     moreFilter.style.padding = '8px';
-//     moreFilter.style.borderRadius = '4px';
-// }
-
-// async function changeButtonTransactionsPage() {
-//     const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
-
-//     const moreFilterA = document.querySelector('#toggle-filters');
-//     const hrElement = document.querySelector('hr'); // Assuming there's only one <hr> element
-//     const divAfterHr = hrElement.nextElementSibling;
-
-//     // Get the div with the class 'form-group' and no other classes
-// //    const specificDiv = document.querySelectorAll('div.form-group:not([class*="col-sm-3"])');
-//     // Get all div elements with only the class 'form-group'
-// // Get the div containing an <a> element with id 'toggle-columns'
-// // Get the div containing an <a> element with id 'toggle-columns'
-// const divWithToggleColumns = document.querySelector('div:has(a#toggle-columns)');
-
-// // Get the first div before the divWithToggleColumns
-// const firstDivBeforeToggleColumns = divWithToggleColumns?.previousElementSibling;
-
-
-
-
-
-//     const divElement = document.createElement('div');
-//     divElement.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`
-//     //spanElement.textContent = 'Test'; // Set the text content of the span
-
-//     divAfterHr?.insertBefore(divElement, divAfterHr.firstChild);
-
-//     // Style the divAfterHr element (assuming it's an <a> element)
-
-
-//     moreFilterA.style.color = '#fff'
-
-//     divAfterHr.style.display = 'flex';
-//     divAfterHr.style.width = '130px';
-//     divAfterHr.style.backgroundColor = '#28A745';
-//     divAfterHr.style.color = '#fff';
-//     divAfterHr.style.padding = '8px';
-//     divAfterHr.style.borderRadius = '4px';
-
-//     firstDivBeforeToggleColumns.style.backgroundColor = '#ff0000';
-// }
+  }
+  
 
 async function changeButtonTransactionsPage() {
-    const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
-    const iconColumns = await chrome.runtime.getURL("images/icon_check.png");
-
-    const moreFilterA = document.querySelector('#toggle-filters');
+    const iconFilter = chrome.runtime.getURL("images/icon_filters.png");
+    const iconColumns = chrome.runtime.getURL("images/icon_check.png");
+  
+    const moreFilterA = document.querySelector('#toggle-filters'); // 
     const moreColumnsA = document.querySelector('#toggle-columns');
-
-    // const hrElement = document.querySelector('hr'); // Assuming there's only one <hr> element
-    // const divAfterHr = hrElement.nextElementSibling;
-
+  
     const divElementFilter = document.createElement('div');
-    const divElementColumn = document.createElement('div');
-    
-
-    
+    const divElementColumn = document.createElement('div'); // Create once
+  
     const divWithToggleFilters = document.querySelector('div.form-group:has(a#toggle-filters)');
-
-    // Check if the div is found before changing its background color
-    if (divWithToggleFilters) {
-        divElementFilter.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`
-        
+  
+    if(moreFilterA instanceof HTMLElement) {
+        moreFilterA.style.textDecoration = 'none';
         moreFilterA.style.color = '#025939';
-
-        divWithToggleFilters.style.backgroundColor = '#d9ecd3'; 
-        divWithToggleFilters.style.color = '#fff'
-        divWithToggleFilters.style.display = 'flex';
-        divWithToggleFilters.style.width = '135px';
-        
-        
-        divWithToggleFilters.style.padding = '8px';
-        divWithToggleFilters.style.borderRadius = '4px';
-        
-        // Insert divElement into divWithToggleFilters
-        divWithToggleFilters.insertBefore(divElementFilter, divWithToggleFilters.firstChild);
     }
 
+    if (divWithToggleFilters instanceof HTMLDivElement) {
+      divElementFilter.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`;
+      
+      
+  
+      divWithToggleFilters.style.backgroundColor = '#d9ecd3';
+      divWithToggleFilters.style.color = '#fff';
+      divWithToggleFilters.style.display = 'flex';
+      divWithToggleFilters.style.width = '135px';
+      divWithToggleFilters.style.padding = '8px';
+      divWithToggleFilters.style.borderRadius = '4px';
+  
+      divWithToggleFilters.insertBefore(divElementFilter, divWithToggleFilters.firstChild);
+    }
+  
     const divWithToggleColumns = document.querySelector('div.form-group:has(a#toggle-columns)');
-
-    if (divWithToggleColumns) {
-        divElementColumn.innerHTML = `<img src="${iconColumns}" style="height: 20px; margin-right: 5px;">`
+  
+    if (divWithToggleColumns instanceof HTMLDivElement) {
+      divElementColumn.innerHTML = `<img src="${iconColumns}" style="height: 20px; margin-right: 5px;">`;
+      
+      if(moreColumnsA instanceof HTMLElement) {
+        moreColumnsA.style.textDecoration = 'none';
         moreColumnsA.style.color = '#025939';
-        
-        divWithToggleColumns.style.color = '#fff'
-        divWithToggleColumns.style.display = 'flex';
-        divWithToggleColumns.style.width = '135px';
-        divWithToggleColumns.style.backgroundColor = '#d9ecd3';
-        divWithToggleColumns.style.color = '#fff';
-        divWithToggleColumns.style.padding = '8px';
-        divWithToggleColumns.style.borderRadius = '4px';
-
-        // Insert divElement into divWithToggleColumns
-        divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
+      }
+      
+      divWithToggleColumns.style.color = '#fff';
+      divWithToggleColumns.style.display = 'flex';
+      divWithToggleColumns.style.width = '135px';
+      divWithToggleColumns.style.backgroundColor = '#d9ecd3';
+      divWithToggleColumns.style.padding = '8px';
+      divWithToggleColumns.style.borderRadius = '4px';
+  
+      divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
     }
+  }
+  
+//console.error('Checkbox not found or invalid selector');
+
+// async function changeButtonTransactionsPage() {
+//     const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
+//     const iconColumns = await chrome.runtime.getURL("images/icon_check.png");
+
+//     const moreFilterA = document.querySelector('#toggle-filters');
+//     const moreColumnsA = document.querySelector('#toggle-columns');
+
+//     // const hrElement = document.querySelector('hr'); // Assuming there's only one <hr> element
+//     // const divAfterHr = hrElement.nextElementSibling;
+
+//     const divElementFilter = document.createElement('div');
+//     const divElementColumn = document.createElement('div');
+    
+
+    
+//     const divWithToggleFilters  = document.querySelector('div.form-group:has(a#toggle-filters)');
+
+//     // Check if the div is found before changing its background color
+//     if (divWithToggleFilters) {
+//         divElementFilter.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`
+        
+//         moreFilterA.style.color = '#025939';
+
+//         divWithToggleFilters.style.backgroundColor = '#d9ecd3'; 
+//         divWithToggleFilters.style.color = '#fff'
+//         divWithToggleFilters.style.display = 'flex';
+//         divWithToggleFilters.style.width = '135px';
+        
+        
+//         divWithToggleFilters.style.padding = '8px';
+//         divWithToggleFilters.style.borderRadius = '4px';
+        
+//         // Insert divElement into divWithToggleFilters
+//         divWithToggleFilters.insertBefore(divElementFilter, divWithToggleFilters.firstChild);
+//     }
+
+//     const divWithToggleColumns = document.querySelector('div.form-group:has(a#toggle-columns)');
+
+//     if (divWithToggleColumns) {
+//         divElementColumn.innerHTML = `<img src="${iconColumns}" style="height: 20px; margin-right: 5px;">`
+//         moreColumnsA.style.color = '#025939';
+        
+//         divWithToggleColumns.style.color = '#fff'
+//         divWithToggleColumns.style.display = 'flex';
+//         divWithToggleColumns.style.width = '135px';
+//         divWithToggleColumns.style.backgroundColor = '#d9ecd3';
+//         divWithToggleColumns.style.color = '#fff';
+//         divWithToggleColumns.style.padding = '8px';
+//         divWithToggleColumns.style.borderRadius = '4px';
+
+//         // Insert divElement into divWithToggleColumns
+//         divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
+//     }
 
 
-}
+// }
 
 
 
@@ -1250,3 +1249,4 @@ async function changeButtonTransactionsPage() {
 //         //modalFooter.innerHTML = `<p>Testando essa bagaça</p>`
 //     }
 // }
+//'https://trustly.one/admin-console/transactions?transactionId=7741566102&transactionId=7741566078&ppTransactionId=&merchantReference=&teaId=&merchantId=&paymentProviderId=&paymentId=&customerExternalId=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&personId=&fiCustomerId=&customerState=&reasonCode=&teaId=&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=mrbq7ikd47j9uqv311vis4atuj'
