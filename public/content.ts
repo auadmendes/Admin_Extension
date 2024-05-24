@@ -19,14 +19,17 @@
 //   };
 
   //const [fields, setFields] = useState<FieldObject[]>()
+
+
+
 let  fields  = []
 
 
     async function initiateFields() {
         const url = window.location.href;
-        const customer = 'https://trustly.one/admin-console/transactions/customers'
+        const customer = 'https://trustly.one/admin-console/'
         if(url.startsWith(customer)) {
-            darkMode();
+            checkIsDarkModeSaved();
         }
 
         if (url.startsWith('https://trustly.one/admin-console/transactions/customers')) {
@@ -38,12 +41,18 @@ let  fields  = []
             getStoredData();
             setFieldsToTheFormTransactions();
             checkIsDarkModeSaved();
+            getFieldValuesByUrl();
         }
+
+
+        //listenPage();
+
     }
 
     async function getFieldValuesByUrl() {
-        const url = window.location.href;
-        const params = new URLSearchParams(url);
+        
+        const url = new URL(window.location.href);
+        const params = url.searchParams;
     
         // Example: get the value of merchantReference parameter
         const transactionId = params.get('transactionId');
@@ -55,6 +64,8 @@ let  fields  = []
         const ppTransactionId = params.get('ppTransactionId');
         const merchantId = params.get('merchantId');
         const paymentProviderId = params.get('paymentProviderId');
+        const framework = params.get('framework');
+        const accountName = params.get('accountName');
 
         const transactionTypeParam = params.getAll('transactionType');
         const transactionType = transactionTypeParam.join(',')
@@ -89,7 +100,9 @@ let  fields  = []
             transactionType,
             transactionStatus,
             merchantId,
-            paymentProviderId
+            paymentProviderId,
+            framework,
+            accountName
             // transactionId,
             // ppTransactionId,
             // ...
@@ -145,7 +158,9 @@ let  fields  = []
                     transactionType,
                     transactionStatus,
                     merchantId,
-                    paymentProviderId
+                    paymentProviderId,
+                    framework,
+                    accountName
                 } = extractedValues;
 
                 fields.forEach(item => {
@@ -180,6 +195,9 @@ let  fields  = []
                                 break;
                             case 'Customer Name:':
                                 newItemDiv.querySelector('input')?.setAttribute('value', mctCustomerName || '') ;
+                                break;
+                            case 'Trx Account Name:':
+                                newItemDiv.querySelector('input')?.setAttribute('value', accountName || '') ;
                                 break;
                                 case 'Payment Type:':
                                     // eslint-disable-next-line no-case-declarations
@@ -241,6 +259,13 @@ let  fields  = []
                                         //selectElement.style.width = '187px';
                                     }
                                     break;
+                                case 'Platform:':
+                                    selectElement = newItemDiv.querySelector('select'); // Assign value inside the case block
+                                    if (selectElement) {
+                                        selectElement.value = framework || '';
+                                        //selectElement.style.width = '187px';
+                                    }
+                                    break;
                             default:
                                 break;
                         }
@@ -272,7 +297,6 @@ let  fields  = []
         }
     }
 
-
     async function checkIsDarkModeSaved() {
         chrome.storage.local.get('isDark', function (result) {
             if (chrome.runtime.lastError) {
@@ -282,7 +306,7 @@ let  fields  = []
 
             const isDark = result.isDark;
             if (isDark === true) {
-                darkMode()
+                darkMode();
             } else {
                 // Value not set, default to false and save to storage
                 console.log('isDarkMode is false')
@@ -291,10 +315,11 @@ let  fields  = []
     }
 
     async function darkMode() {
-        const urlAdmin = 'https://trustly.one/admin-console'
+        const urlAdmin = 'https://trustly.one/admin-console/'
         const customer = 'https://trustly.one/admin-console/transactions/customers'
-        if (location.href.startsWith(urlAdmin) || location.href.startsWith(customer)) {
-            console.log('deu certo:   > ', location.href)
+        
+        if (location.href.includes(urlAdmin) || location.href.includes(customer)) {
+            //console.log('deu certo:   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> ', customer, ' ------------')
             const css = `
                 html {
                     -webkit-filter: invert(100%);
@@ -339,17 +364,17 @@ let  fields  = []
                 }
             `;
     
-            // Check if the dark mode is already active
+            // Checking if the dark mode is already active
             const existingStyle = document.querySelector('#darkModeStyle');
             if (existingStyle) {
                 // Remove the dark mode style
-                existingStyle.remove();
+                ///////Voltar ao normal quando ativar////////////existingStyle.remove();
             } else {
-                // Create a new style element for dark mode
+
                 const style = document.createElement('style');
                 style.id = 'darkModeStyle';
                 style.textContent = css;
-                // Inject the dark mode style into the head
+                
                 document.head.appendChild(style);
             }
         }
@@ -374,5 +399,70 @@ let  fields  = []
         }
     }
 
+    // //@ts-ignore
+    // function openTabInServiceWorker(personId) {
+    //     // Send a message to the service worker to open a tab with the personId
+    //     chrome.runtime.sendMessage({ action: 'openTab', personId: personId }, (response) => {
+    //         const tabId = response.tabId;
+    //         const data = response.extractedData; // Extracted data from the service worker
+    //         console.log('New tab opened with ID:', tabId);
+    //         console.log('New Data:', data);
+    
+    //         // Iterate over the extracted data to log each transactionId
+    //          //@ts-ignore
+    //         data.forEach(item => {
+    //             checkCheckboxesByTransactionId(item.transactionId)
+    //             console.log('Transaction ID:', item.transactionId);
+    //         });
+    //     });
+    // }
+    
+    // async function listenPage() {
+    //     //document.addEventListener('DOMContentLoaded', function () {
+    //         // Find the input element with ID 'personId'
+    //         const personIdInput = document.getElementById('personId');
+    
+    //         // Create a button element
+    //         const openTabButton = document.createElement('button');
+    //         openTabButton.id = 'yourButtonId'; 
+    //         openTabButton.textContent = 'Open Tab';
+    //         openTabButton.style.background = 'red';
+    //         openTabButton.style.color = 'white';
+            
+    //         // Add event listener to the button
+    //         openTabButton.addEventListener('click', function () {
+    //             // Call the function to open a tab using the service worker with the input value
+    //             if (personIdInput instanceof HTMLInputElement) {
+    //                 openTabInServiceWorker(personIdInput.value);
+    //             }
+    //         });
+    
+    //         // Append the button to the body
+    //         document.body.appendChild(openTabButton);
+    //     //});
+    // }
+    
+    //  //@ts-ignore
+    // function checkCheckboxesByTransactionId(transactionId) {
+    //     // Select all rows in the table body
+    //     const rows = document.querySelectorAll('tbody tr');
+        
+    //     rows.forEach(row => {
+    //         // Select the second column (td[1]) in the current row
+    //         const transactionCell = row.querySelectorAll('td')[1];
+    //          //@ts-ignore
+    //         if (transactionCell && transactionCell.textContent.trim() === transactionId) {
+    //             // Select the checkbox in the current row
+    //             const checkbox = row.querySelector('input[type="checkbox"]');
+                
+    //             if (checkbox) {
+    //                  //@ts-ignore
+    //                 checkbox.checked = true;
+    //             }
+    //         }
+    //     });
+    // }
 
     initiateFields();
+
+    

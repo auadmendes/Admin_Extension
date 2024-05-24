@@ -10,7 +10,7 @@ import { Spinner } from '../../components/Spinner';
 import { 
   downloadKrakenResult, 
 } from '../../utils';
-//import { Toggle } from '../../components/Toggle';
+
 import { Kraken } from '../Kraken';
 
 
@@ -35,7 +35,6 @@ export function Home() {
     }
   }
   
-
   async function getPageInfo(): Promise<void> {
     return chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
       
@@ -55,10 +54,71 @@ export function Home() {
     setIsKraken(!isKraken);
   }
 
+  async function test() {
+    console.log('Background script loaded.');
+
+    chrome.tabs.query({ currentWindow: true }, (tabs) => {
+      console.log('Tabs in current window:', tabs);
+    });
+    
+    chrome.runtime.onInstalled.addListener(() => {
+      console.log('Extension installed.');
+    });
+    
+    chrome.runtime.onMessage.addListener((message) => {
+      console.log('Message received:', message);
+    });
+
+    console.log('fim')
+  }
+
+  async function getDataFromCollections() {
+    await chrome.runtime.sendMessage({ action: 'fetchDataFromPage' });
+  }
+
+//   function openTabAndExtractData() {
+//     const collectionsURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=7369294045&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3';
+
+//     // Function to open a tab and load a URL
+//     function openTab(url:, callback) {
+//         chrome.tabs.create({ url }, callback);
+//     }
+
+//     // Function to extract data from the page
+//     function extractDataFromPage() {
+//         const tdElements = document.querySelectorAll('td');
+//         const tdData = Array.from(tdElements).map(td => td.textContent?.trim());
+//         return tdData;
+//     }
+
+//     // Function to close a tab by tabId
+//     function closeTab(tabId) {
+//         chrome.tabs.remove(tabId);
+//     }
+
+//     // Open a new tab with the collectionsURL
+//     openTab(collectionsURL, (tab) => {
+//         const tabId = tab.id;
+//         // Inject content script to extract data from the page
+//         chrome.scripting.executeScript({
+//             target: { tabId: tabId },
+//             func: extractDataFromPage
+//         }, (results) => {
+//             // Extracted data will be in the results array
+//             const extractedData = results[0].result;
+//             console.log('Extracted Data:', extractedData);
+//             // Close the tab after extracting data
+//             closeTab(tabId);
+//         });
+//     });
+// }
+
+
 
   useEffect(() => {
     getPageInfo();
-    
+    test();
+    getDataFromCollections();
    },[])
 
   return (
@@ -125,8 +185,12 @@ export function Home() {
               <div className="text-white" ></div>
             )}
           </div>
+          
         </div>
     )}
       </div>
   );
 }
+
+
+// person id vs url

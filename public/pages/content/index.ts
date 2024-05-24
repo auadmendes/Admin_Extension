@@ -1,42 +1,41 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
+
 let transactionBoxUl;
 let paymentBoxUl;
 let fiBoxUl;
 let accountCustomerBoxUl;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 let teaID;
+    let totalAmount = 0;
+    let amount = 0;
+    let checkedCount = 0;
+    const adminCustomersUrl = 'https://trustly.one/admin-console/transactions/customers'
 
 async function init() {
     createGroup();
     changeLogo();
     //rearrangeInputs();
     creatingTheBoxInfo();
-    someAllAmountsOnThePage();
-
+    
     addLinkToMerchantReferenceOnTransactionsList();
     
     changeButtonTransactionsPage();
-    //testing adding button to merchant Portal to download the table / the extension already does that in the pop up
-    //addButtonMerchantPortal();
-   // callApiTest();
-    // const cookies = document.cookie.split(';');
-    // let authCookieValue = '';
 
-    // for (const cookie of cookies) {
-    //     const [name, value] = cookie.trim().split('=');
-    //     // console.log(name, ' -----------------')
-    //     // console.log(cookies, '  ++++++++++++++++++++')
-    //     if (name === 'auth') {
-    //       authCookieValue = value;
-    //       break; // Exit the loop if the 'auth' cookie is found
-    //     }
-
-    //   }
-
-    //   console.log(authCookieValue)
-
+    //if (location.href.startsWith(urlAdmin) || location.href.startsWith(customer)) {
+    if(!location.href.startsWith(adminCustomersUrl)) {
+        someAllAmountsOnThePage();
+    }
+   
 }
 
 init();
 
+function getStyleString(styleObj) {
+    return Object.entries(styleObj)
+        .map(([prop, value]) => `${prop}: ${value}`)
+        .join(';');
+}
 
 function showToast(message) {
     
@@ -120,9 +119,8 @@ async function paymentTab() {
 }
 
 async function someAllAmountsOnThePage() { 
-    let totalAmount = 0;
-    let amount = 0;
-    let checkedCount = 0;
+    const iconCheck = chrome.runtime.getURL("images/icon_check.png");
+
     const rows = document.querySelectorAll('#sortabletable tbody tr');
     const resetButton = document.querySelector('#reset-search');
     const checkboxAll = document.querySelector('#sortabletable thead th input[type="checkbox"]');
@@ -172,7 +170,7 @@ async function someAllAmountsOnThePage() {
                 }
             });
         } else {
-            console.error('Checkbox not found or invalid selector');
+            //console.error('Checkbox not found or invalid selector');
         }
     });
 
@@ -192,10 +190,10 @@ async function someAllAmountsOnThePage() {
         newDiv.style.borderRadius = '4px';
         newDiv.style.marginTop = '5px';
         newDiv.innerHTML = `<span style="color: #025939;"> 
+            <img style="width: 20px;" src=${iconCheck} />
+            <span id="checkedCountDisplay"> ${checkedCount}</span>
 
-            Checked: <span id="checkedCountDisplay">${checkedCount}</span>
-
-            Total: <span id="totalAmountDisplay" style="color: #012340;">Total: $${totalAmount.toFixed(2)}</span>
+            | Total: <span id="totalAmountDisplay" style="color: #012340;">Total: $${totalAmount.toFixed(2)}</span>
 
         </span>`;
         resetButton.insertAdjacentElement('afterend', newDiv);
@@ -219,21 +217,21 @@ async function tabTransaction() {
     const statusCode = document.querySelector('#transaction tbody tr:nth-child(16) td:nth-child(2)')?.textContent;
     const isVip = document.querySelector('#fi-transaction tbody tr:nth-child(23) td:nth-child(2)')?.textContent;
     const branchIconPath = chrome.runtime.getURL("images/icon.png");
-    const teaICon = chrome.runtime.getURL("images/tea.png");
+   // const teaICon = chrome.runtime.getURL("images/tea.png");
     const visibleICon = chrome.runtime.getURL("images/visible.png");
     
    
 
-    setTimeout(() => {
-        const button = document.querySelector('.panel-body .btn.btn-default:nth-child(2)');
-        if (button) {
-            button.click();
-        } 
-    }, 2000);
+    // setTimeout(() => {
+    //     const button = document.querySelector('.panel-body .btn.btn-default:nth-child(2)');
+    //     if (button) {
+    //         button.click();
+    //     } 
+    // }, 2000);
 
-    setTimeout(() => {
-        teaID = document.querySelector('#batchIceTea table.table tbody tr:first-child td:nth-child(2)')?.textContent;
-    },4000)
+    // setTimeout(() => {
+    //     teaID = document.querySelector('#batchIceTea table.table tbody tr:first-child td:nth-child(2)')?.textContent;
+    // },4000)
 
 
     const eventsTableDescription = document.querySelector('#events #sortabletable tbody');
@@ -275,6 +273,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R01',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R02'):
@@ -285,6 +284,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R02',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R03'):
@@ -295,6 +295,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R03',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R04'):
@@ -305,6 +306,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R04',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R05'):
@@ -315,6 +317,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R0',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R06'):
@@ -324,6 +327,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R06',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R07'):
@@ -334,6 +338,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R07',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R08'):
@@ -344,6 +349,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R08',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R09'):
@@ -354,6 +360,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R09',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R10'):
@@ -364,6 +371,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R10',
                             };
+                            //@ts-ignore
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R11'):
@@ -374,6 +382,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R11',
                             };
+                            //@ts-expect-error
                             matchingEvents.push(eventsData);
                             break;
                         case attributesEvent?.includes('R16'):
@@ -384,6 +393,7 @@ async function tabTransaction() {
                                 title: titleEvent,
                                 status: 'R16',
                             };
+                            //@ts-expect-error
                             matchingEvents.push(eventsData);
                             break;
                         default:
@@ -420,7 +430,7 @@ async function tabTransaction() {
                                 .substring(startIndex + 11) // Starting index after 'returnCode:'
                                 .split('<br>')[0] // Take the content until the first <br>
                                 .trim(); // Trim leading and trailing spaces
-                            liReturnCode = returnCodeValue.substring(0, 4);
+                            liReturnCode = returnCodeValue.substring(0, 7);
                         }
                     }
                 }
@@ -500,42 +510,37 @@ async function tabTransaction() {
     </li>`;
 
 // Display "Loading..." message before the timeout
-transactionBoxUl.innerHTML += `<li class="loading" style="color: red;">Loading...</li>`;
+// transactionBoxUl.innerHTML += `<li class="loading" style="color: red;">Loading...</li>`;
 
-setTimeout(() => {
-    // Remove the "Loading..." message
-    const loadingLi = document.querySelector('.loading');
-    if (loadingLi) {
-        loadingLi.remove();
-    }
+// setTimeout(() => {
+//     // Remove the "Loading..." message
+//     const loadingLi = document.querySelector('.loading');
+//     if (loadingLi) {
+//         loadingLi.remove();
+//     }
 
-    // Add the actual content based on the condition
-    if (teaID) {
-        transactionBoxUl.innerHTML += `<li class="teaID">
-            <a target="_bank" href="https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=${teaID}&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=ir8v69jp4bbo4fkvkde3va2035">
-                Tea ID: ${teaID} 
-            </a>
-            <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
-        </li>`;
-    } else {
-        transactionBoxUl.innerHTML += `<li class="teaID">
-            Tea ID not found
-            <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
-        </li>`;
-    }
-}, 4000);
-
-
-    //////////////////////////////////////////////
-
-
+//     // Add the actual content based on the condition
+//     if (teaID) {
+//         transactionBoxUl.innerHTML += `<li class="teaID">
+//             <a target="_bank" href="https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=${teaID}&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=ir8v69jp4bbo4fkvkde3va2035">
+//                 Tea ID: ${teaID} 
+//             </a>
+//             <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
+//         </li>`;
+//     } else {
+//         transactionBoxUl.innerHTML += `<li class="teaID">
+//             Tea ID not found
+//             <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
+//         </li>`;
+//     }
+// }, 4000);
 
 
     //////////////////////////////////////////////
-    
 
+   //@ts-expect-error
     const tooltipHTML = `<ul style="list-style-type: none; margin-left: -10px; padding: 3px 8px 1px 15px;"> 
-        ${matchingEvents.map(event => `<li style="padding-left: -10px;"> 
+    ${matchingEvents.map(event => `<li style="padding-left: -10px;"> 
         ${event.date} - ${event.title} - ${event.status}
         </li>`).join('')}
     </ul>`;
@@ -553,11 +558,6 @@ setTimeout(() => {
                 ${matchingEvents.length > 0 ? `<img style="width: 18px;" src="${visibleICon}" alt="Branches Icon" />` : ''}
             </li>`;
     }
-    
-    
-
-
-
 
     if(statusCode !== ''){
         transactionBoxUl.innerHTML += `<li>Status: ${statusCode}</li>`
@@ -600,6 +600,21 @@ function copyToClipboard(text) {
 
 async function tabFiTransaction() {
     
+    const globalStyles = {
+        // Define your styles here
+        createPoa: {
+            width: '18px',
+            cursor: 'pointer',
+            opacity: '1',
+
+            ':hover': {
+                opacity: '0.1',
+                border: '2px solid red'
+                // Add more hover styles as needed
+            }
+        }
+    };
+
      const achProcessor = document.querySelector('#fi-transaction tbody tr:nth-child(3) td:nth-child(2)')?.textContent;
      const routing = document.querySelector('#fi-transaction tbody tr:nth-child(10) td:nth-child(2)')?.textContent;
      const account = document.querySelector('#fi-transaction tbody tr:nth-child(11) td:nth-child(2)')?.textContent;
@@ -608,7 +623,9 @@ async function tabFiTransaction() {
      const isGuaranteed = document.querySelector('#fi-transaction tbody tr:nth-child(21) td:nth-child(2)')?.textContent;
      const linkElement = document.querySelector('#fi-transaction tbody tr:nth-child(1) td:nth-child(2) a');
      const fiTransactionId = linkElement?.textContent?.trim();
+
      const copyICon = chrome.runtime.getURL("images/copy.png");
+     const poaIcon = chrome.runtime.getURL("images/document.png");
     
 
     let message;
@@ -697,12 +714,13 @@ async function tabFiTransaction() {
     }
 
     if(fiTransactionId !== ''){
-        fiBoxUl.innerHTML += `<li>
+        fiBoxUl.innerHTML += `<div>
+        <img class="createPoa" style="${getStyleString(globalStyles.createPoa)}" src=${poaIcon} alt="Branches Icon" title="Click to create the POA" /> |
             <span class="copyable" style="color: red; cursor: pointer;">
-            <img style="width: 18px" src=${copyICon} alt="Branches Icon" />
+                <img class="copyable" style="width: 18px" src=${copyICon} alt="Branches Icon" title="Click to copy the PTX" />
                 ${fiTransactionId}
             </span>
-        </li>`;
+        </div>`;
     }else {
         fiBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Fi Trx ID: <span class="copyable">not found</span></li>`;
     }
@@ -710,9 +728,24 @@ async function tabFiTransaction() {
 
     fiBoxUl.addEventListener('click', function(event) {
         const target = event.target;
-        if (target.tagName === 'SPAN' && target.classList.contains('copyable')) {
-            const fiTransactionId = target.textContent.trim();
+        if (target.tagName === 'SPAN' || target.tagName === 'IMG' && target.classList.contains('copyable')) {
+            //const fiTransactionId = target.textContent.trim();
             copyToClipboard(fiTransactionId);
+        }
+    });
+
+    fiBoxUl.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.tagName === 'IMG' && target.classList.contains('createPoa')) {
+            const email = getEmailFromDropdown();
+            console.log('My email is  <<<<<< ', email)
+    
+            if (email) {
+                // Construct the URL
+                const url = `https://trustly.one/admin-console/disputes?emails=${encodeURIComponent(email)}&flasher.message=The+execution+of+the+Dispute+Report+was+triggered.&ptxs=${fiTransactionId}`;
+                openTabInServiceWorkerForPOA(url);
+                showToast(`Creating POA for ${fiTransactionId}`);
+            }
         }
     });
 
@@ -720,7 +753,7 @@ async function tabFiTransaction() {
 }
 
 async function tabAccountCustomer() {
-    const originalTransaction = document.querySelector('#transaction tbody tr:nth-child(3) td:nth-child(2) a:first-child')?.textContent;
+    //const originalTransaction = document.querySelector('#transaction tbody tr:nth-child(3) td:nth-child(2) a:first-child')?.textContent;
     const merchantName = document.querySelector('.table tbody tr:first-child td:nth-child(6) div div:nth-child(1)')?.textContent;
     const merchantLink = document.querySelector('.table tbody tr:first-child td:nth-child(6) div ul li:nth-child(2) a');
     const customerName = document.querySelector('#info .table-hover tr:nth-child(4) td:nth-child(2)')?.textContent;
@@ -728,6 +761,12 @@ async function tabAccountCustomer() {
     const personID = document.querySelector('#info .table-hover tr:nth-child(2) td:nth-child(2)')?.textContent;
     const customerID = document.querySelector('#info .table-hover tr:nth-child(1) td:nth-child(2)')?.textContent;
     const customerExternalID = document.querySelector('#info .table-hover tr:nth-child(3) td:nth-child(2)')?.textContent?.trim();
+
+    const teaICon = chrome.runtime.getURL("images/tea.png");
+    
+
+    let teaIdCustomerInfo1;
+    let teaIdCustomerInfo2;
 
     accountCustomerBoxUl = document.createElement('ul');
     accountCustomerBoxUl.style.background = 'transparent';
@@ -738,6 +777,48 @@ async function tabAccountCustomer() {
     accountCustomerBoxUl.innerHTML += `<h4>Customer Info (<a target="_blank" href=${merchantLink}>${merchantName?.substring(0,8)}...</a>)</h4>`;
     accountCustomerBoxUl.innerHTML += `<li>Name: ${customerName}</li>`;
 
+    
+
+    setTimeout(() => {
+        const button = document.querySelector('.panel-body .btn.btn-default:nth-child(1)');
+        const button2 = document.querySelector('.panel-body .btn.btn-default:nth-child(2)');
+        
+
+        
+
+        if (button) {
+          button.click();
+          console.log('Clicked the second button');
+
+          setTimeout(() => {
+             teaIdCustomerInfo1 = document.querySelector('#batchIceTea table.table tbody tr:first-child td:nth-child(2)')?.textContent;
+             
+            console.log('Button 1111: ', teaIdCustomerInfo1);
+          }, 1000); // Adjust timing as needed for data retrieval
+
+        } else {
+          console.log('Second button not found');
+        }
+
+        if (button2) {
+            button2.click();
+            console.log('Clicked the second button');
+  
+            setTimeout(() => {
+                teaIdCustomerInfo2 = document.querySelector('#batchIceTea table.table tbody tr:first-child td:nth-child(2)')?.textContent;
+               
+              console.log('Button 222222 ', teaIdCustomerInfo2);
+            }, 1000); // Adjust timing as needed for data retrieval
+  
+          } else {
+            console.log('Second button not found');
+          }
+
+      }, 3000); // Adjust timing as needed for button click
+      
+
+    //&personId=5360558724&
+
     if(customerEmail) {
         accountCustomerBoxUl.innerHTML += `<li>Email: ${customerEmail}</li>`;
     } else {
@@ -745,38 +826,93 @@ async function tabAccountCustomer() {
     }
     //customerInfoBox.innerHTML += `<li><a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}">Person ID: ${personID}</a></li>`;
     
-    if(personID) {
+    if(personID || customerExternalID) {
         accountCustomerBoxUl.innerHTML += `<li>
-        <a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=${originalTransaction}"> 
-            Collections <strong>Via Original: </strong> ${originalTransaction}
+        Fees (INSTANT):
+        <a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}&paymentType=1"> 
+             ${personID && "<strong>Person ID</strong>"} 
+        </a> | 
+        <a target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}&paymentType=1"> 
+             ${customerExternalID && "<strong>External ID </strong>"}
         </a>
     </li>`
     }
 
-    if(customerID) {
+    //${customerID} - ${personID}
+    if(customerID || customerID) {
         accountCustomerBoxUl.innerHTML += `<li>
-        <a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=${customerID}&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
-            Collections <strong>Customer ID: </strong> ${customerID}
-        </a>
+        Collections:
+        ${customerID ? `<a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=${customerID}&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
+        ${customerID && "<strong>Customer</strong>"} 
+        </a> `: ''}
+
+        ${customerID && personID ? `|` : ''} 
+        
+        ${personID ? `<a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=${personID}&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
+        ${personID && "<strong>Person:</strong>"} 
+        </a>`: ''}
        </li>`
     }
 
-   if(personID) {
-    accountCustomerBoxUl.innerHTML += `<li>
-        <a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=${personID}&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
-            Collections <strong>Person ID: </strong> ${personID}
-        </a>
-   </li>`
-   }
+//    if(personID) {
+//     accountCustomerBoxUl.innerHTML += `<li>
+//         <a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=${personID}&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
+//             <strong>Person ID: </strong> ${personID}
+//         </a>
+//    </li>`
+//    }
 //https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=31840931&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=g6588nite5toevjploo2rubdsj
 
-   if(customerExternalID) {
-    accountCustomerBoxUl.innerHTML += `<li>
-        <a target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}"> 
-            External ID:  ${customerExternalID}
-        </a>
-   </li>`
-}
+    accountCustomerBoxUl.innerHTML += `<li class="loading" style="color: red;">Finding Tea ID...</li>`;
+    setTimeout(() => {
+        
+        let teaIdData;
+
+        const loadingLi = document.querySelector('.loading');
+        if (loadingLi) {
+            loadingLi.remove();
+        }
+
+        if(teaIdCustomerInfo1) {
+            teaIdData = teaIdCustomerInfo1
+        }
+        if(teaIdCustomerInfo2) {
+            teaIdData = teaIdCustomerInfo2
+        }
+
+        if (teaIdData) {
+            accountCustomerBoxUl.innerHTML += `<li class="teaID">
+                
+                <a target="_bank" href="https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=${teaIdData}&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=ir8v69jp4bbo4fkvkde3va2035">
+                    Tea ID:<strong> ${teaIdData}</strong>
+                </a>
+                <!-- <img style="width: 18px" src="${teaICon}" alt="Branches Icon" /> --!>
+            </li>`;
+        } else {
+            accountCustomerBoxUl.innerHTML += `<li style="line-through;"" class="teaID">
+                Tea ID not found
+                <img style="width: 18px" src="${teaICon}" alt="Branches Icon" />
+            </li>`;
+        }
+
+    }, 6000);
+
+    if (customerExternalID) {
+        accountCustomerBoxUl.innerHTML += `<li>
+            Transactions: 
+            ${customerExternalID ? 
+                `<a target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}">
+                    <strong>External ID</strong>
+                </a>` 
+                : ''} 
+                ${customerExternalID && personID ? `|` : ''} 
+            ${personID ? `<a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}">
+            <strong>Person ID</strong>
+                </a>`
+                : ''}
+            </li>`;
+    }
+    
 
 }
 
@@ -813,12 +949,16 @@ async function createGroup() {
     const group = document.querySelector('.btn-group ul');
     const copySelectIcon = chrome.runtime.getURL("images/copy_selected_icon.png");
     const copyAllIcon = chrome.runtime.getURL("images/copy_all_icon.png");
+    const poaIcon = chrome.runtime.getURL("images/document.png");
 
         if(group) {
             const liSelectedPtx = document.createElement('li');
             const liPtxAll = document.createElement('li');
             const liRef = document.createElement('li');
             const liMRef = document.createElement('li');
+            const liPCollections = document.createElement('li');
+            const liCheckTransactions = document.createElement('li');
+            const liCreateProofOfAuthorization = document.createElement('li');
 
             const newLinkSelectedPtx = document.createElement('a');
             const newLinkSelectedPtxAll = document.createElement('a');
@@ -851,6 +991,21 @@ async function createGroup() {
                 All. Merchant. Ref
             </span>`
 
+            liPCollections.innerHTML = `<a title="Person ID" href="#" style="color: #0EA5E9;">
+            <span>Check Collections (person) </span>
+            </a>`;
+
+
+            liCheckTransactions.innerHTML = `<a title="Check for transactions" href="#" style="color: #0EA5E9;">
+            <span>Check Transactions</span>
+            </a>`;
+
+            liCreateProofOfAuthorization.innerHTML = `<a title="Check the transactions you want to generate POA" href="#" style="color: #0EA5E9;">
+            <img style="width: 20px;" src=${poaIcon} />
+            <span>Generate POA</span>
+            </a>`;
+
+
             //newLinkSelectedPtx.textContent = 'Copy Selected PTX'
             //newLinkSelectedPtxAll.textContent = 'Copy All PTXs'
             //newLinkRef.textContent = 'Copy All. M. Ref'
@@ -876,6 +1031,40 @@ async function createGroup() {
                 copySelectedMerchantReferenceToClipboard();
             });
 
+
+            liPCollections.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = new URL(window.location.href);
+                const params = url.searchParams;
+                const personId = params.get('personId');
+
+               // const personIdInput = document.getElementById('personId')?.textContent;
+
+                if(personId !== "") {
+                    openTabInServiceWorker(personId);
+                } else {
+                    showToast('Please search for the Person ID to use this functionality')
+                }
+            });
+
+            liCheckTransactions.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                const transactionsArray = ['7591576972', '7708048019', '7725774224', '7748991409', '7622869674', '7749192149', '7729032079', '7749191301']
+
+
+               openTabInServiceWorkerForTransactions(transactionsArray)
+
+            });
+
+            liCreateProofOfAuthorization.addEventListener('click', function(event) {
+                event.preventDefault();
+
+                createProofOfAuthorization();
+
+            });
+
+
             liSelectedPtx.appendChild(newLinkSelectedPtx);
             liPtxAll.appendChild(newLinkSelectedPtxAll);
             liMRef.appendChild(newLinkSelectedMerchantRef);
@@ -885,6 +1074,9 @@ async function createGroup() {
             group.appendChild(liPtxAll);
             group.appendChild(liMRef);
             group.appendChild(liRef);
+            group.appendChild(liPCollections);
+            //group.appendChild(liCheckTransactions);
+            group.appendChild(liCreateProofOfAuthorization);
         }
        
 }
@@ -1079,7 +1271,105 @@ async function addLinkToMerchantReferenceOnTransactionsList() {
       }
     });
 }
+
+// function buildURLWithPtxParameters(selectedPtxs) {
+//     const baseURL = 'https://trustly.one/admin-console/disputes?';
+//     const ptxParameter = 'ptxs=' + selectedPtxs.join('%2C%0D%0A');
+//     return baseURL + ptxParameter;
+// }
   
+function createProofOfAuthorization() {
+    const table = document.getElementById('sortabletable');
+
+    if (table) {
+        const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
+
+        if (selectedRows.length === 0) {
+            showToast('No rows selected.');
+            return;
+        }
+
+        const selectedValues = [];
+
+        // Iterate through each selected row
+        selectedRows.forEach(checkbox => {
+            const row = checkbox.closest('tr');
+            const fiTrxId = row?.querySelector('.viewFiTrxId-col')?.textContent;
+            if (fiTrxId) {
+                //@ts-ignore
+                selectedValues.push(fiTrxId.trim());
+            }
+        });
+
+        // Check if any selected row does not have a ptx value
+        const missingPtxValues = selectedRows.some(row => {
+            const fiTrxId = row.closest('tr')?.querySelector('.viewFiTrxId-col')?.textContent;
+            //@ts-ignore
+            return !selectedValues.includes(fiTrxId.trim());
+        });
+
+        if (missingPtxValues) {
+            showToast('Not all selected rows have a PTX value.');
+            return;
+        }
+
+        // Join the selected values with URL-encoded commas and newlines
+        const selectedValuesString = selectedValues.join('%2C%0D%0A');
+
+        // Extract the email from the dropdown
+        const email = getEmailFromDropdown();
+        console.log('My email is  <<<<<< ', email)
+
+        if (email) {
+            // Construct the URL
+            const url = `https://trustly.one/admin-console/disputes?emails=${encodeURIComponent(email)}&flasher.message=The+execution+of+the+Dispute+Report+was+triggered.&ptxs=${selectedValuesString}`;
+            openTabInServiceWorkerForPOA(url);
+            // console.log(url);
+
+            // // Open the URL in a new tab
+            // window.open(url, '_blank');
+
+            // // Optionally, copy the URL to the clipboard
+            // navigator.clipboard.writeText(url)
+            //     .then(() => {
+            //         showToast('URL with selected PTXs copied to clipboard'); // Display a toast notification
+            //     })
+            //     .catch(error => {
+            //         showToast('Error copying to clipboard:', error);
+            //     });
+        } else {
+            showToast('Failed to extract email from dropdown');
+        }
+    }
+}
+
+
+function getEmailFromDropdown() {
+    // Select the 'a' element with the id "user-menu"
+    const userMenu = document.getElementById('user-menu');
+
+    if (userMenu) {
+        // Extract the text content from the 'a' element
+        const userMenuText = userMenu.textContent;
+
+        // Extract the username from the text content using regular expression
+        const usernameRegex = /([\w.-]+)\s*$/; // Matches alphanumeric characters, hyphens, and dots at the end of the string
+        const match = userMenuText?.match(usernameRegex);
+        const extractedUsername = match ? match[1] : null;
+
+        if (extractedUsername) {
+            // Construct the email address
+            const email = `${extractedUsername}@trustly.com`;
+
+            return email;
+        }
+    }
+
+    return null;
+}
+
+
+
 
 async function changeLogo() {
     const trustlyLogoGreen = chrome.runtime.getURL("images/trustlyGreen.png");
@@ -1146,7 +1436,312 @@ async function changeButtonTransactionsPage() {
       divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
     }
   }
+
+//   async function listenPage() {
+//     //document.addEventListener('DOMContentLoaded', function () {
+//         // Find the input element with ID 'personId'
+//         const personIdInput = document.getElementById('personId');
+
+//         // Create a button element
+//         const openTabButton = document.createElement('button');
+//         openTabButton.id = 'yourButtonId'; 
+//         openTabButton.textContent = 'Open Tab';
+//         openTabButton.style.background = 'red';
+//         openTabButton.style.color = 'white';
+        
+//         // Add event listener to the button
+//         openTabButton.addEventListener('click', function () {
+//             // Call the function to open a tab using the service worker with the input value
+//             if (personIdInput instanceof HTMLInputElement) {
+//                 openTabInServiceWorker(personIdInput.value);
+//             }
+//         });
+
+//         // Append the button to the body
+//         document.body.appendChild(openTabButton);
+//     //});
+// }
+
+// function getEmailFromDropdown() {
+//     // Select the 'a' element with the id "user-menu"
+//     const userMenu = document.getElementById('user-menu');
+
+//     if (userMenu) {
+//         // Extract the text content from the 'a' element
+//         const userMenuText = userMenu.textContent;
+
+//         // Extract the username from the text content using regular expression
+//         const usernameRegex = /([\w.-]+)\s*$/; // Matches alphanumeric characters, hyphens, and dots at the end of the string
+//         const match = userMenuText?.match(usernameRegex);
+//         const extractedUsername = match ? match[1] : null;
+
+//         if (extractedUsername) {
+//             // Construct the email address
+//             const email = `${extractedUsername}@trustly.com`;
+
+//             console.log(extractedUsername, ' >>>>>>>>>>>>>>>>');
+
+//             return email;
+//         }
+//     }
+
+//     return null;
+// }
+
+function openTabInServiceWorker(personId) {
+    // Send a message to the service worker to open a tab with the personId
+    chrome.runtime.sendMessage({ action: 'openTab', personId: personId }, (response) => {
+        const tabId = response.tabId;
+        const data = response.extractedData; // Extracted data from the service worker
+        console.log('New tab opened with ID:', tabId);
+        console.log('New Data:', data);
+
+            
+        data.forEach((item) => {
+            checkCheckboxesByTransactionId(item.transactionId)
+            
+            console.log('Transaction ID:', item.transactionId);
+        });
+    });
+}
+function openTabInServiceWorkerForPOA(URL) {
+    
+    chrome.runtime.sendMessage({ action: 'createPOAByTable', urlID: URL }, () => {
+
+
+        showToast('success!')
+    });
+}
+
+
+function openTabInServiceWorkerForTransactions(transactionIds) {
+    chrome.runtime.sendMessage({ action: 'extractMultiplePages', transactionIds }, (response) => {
+        if (response.status === 'processing') {
+            console.log('Service Worker is processing transactions...');
+            // Handle processing status (e.g., show a loading indicator)
+        } else if (response.extractedData && Array.isArray(response.extractedData)) {
+            console.log('Extracted Data:', response.extractedData);
+            // Process each transaction data object
+            response.extractedData.forEach((transactionData) => {
+                console.log('Transaction ID:', transactionData.transactionId);
+                console.log('Data:', transactionData.data);
+                // Handle or further process the transaction data as needed
+            });
+        } else {
+            console.error('Unexpected response from service worker:', response);
+            // Handle unexpected response
+        }
+    });
+    
+}
+
+
+function copySelectedMerchantReferenceByCollectionsToClipboard() {
+    
+    const table = document.getElementById('sortabletable');
+
+    if(table) {
+    
+    const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
+    
+    if (selectedRows.length === 0) {
+        showToast('No rows selected.')
+    
+        return;
+    }
+
+    const selectedValues = [] ;
+
+    
+    selectedRows.forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        const fiTrxId = row?.querySelector('.break-all')?.textContent;
+        const fiOriginal = row?.querySelector('.viewOriginalTrxId-col')?.textContent;
+        const transaction = row?.querySelector('td:nth-child(2)')?.textContent;
+        const dateTimeCreated = row?.querySelector('td:nth-child(5)')?.textContent;
+        const trType = row?.querySelector('td:nth-child(8)')?.textContent;
+        const country = row?.querySelector('td:nth-child(12)')?.textContent;
+        const amount = row?.querySelector('td:nth-child(17)')?.textContent;
+
+       // const data =  fiOriginal + ' - ' + fiTrxId + ' - ' + country + ' '  + amount;
+       // const dataCapture = transaction + ' - ' + fiTrxId + ' - ' + country + ' ' + amount;
+
+        const data = `${fiOriginal}  -  ${fiTrxId}  -  ${country === 'US' ? 'USD ' : 'CAD '} ${amount} - created-at ${dateTimeCreated}`;
+        const dataCapture = `${transaction}  -  ${fiTrxId}  -  ${country === 'US' ? 'USD ' : 'CAD '} ${amount} - created-at ${dateTimeCreated}`;
+
+        if (trType !== 'Capture') {
+            //@ts-expect-error
+            selectedValues.push(data);
+        }else {
+            //@ts-expect-error
+            selectedValues.push(dataCapture);
+        }
+    });
+    
+    const selectedValuesString = selectedValues.join('\n');
+
+    
+    navigator.clipboard.writeText(selectedValuesString)
+        .then(() => {
+            //console.log('Selected values copied to the clipboard:', selectedValuesString);
+            showToast('Merchant Reference - Copied to clipboard'); 
+        })
+        .catch(error => {
+            console.error('Error copying to clipboard:', error);
+        });
+    }
+}
+
+
+function checkCheckboxesByTransactionId(transactionId) {
+    // Select all rows in the table body
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        // Second column (td[1])
+        const transactionID = row.querySelectorAll('td')[1];
+        const originalTransactionID = row.querySelectorAll('td')[28];
+        const transactionType = row.querySelectorAll("td")[7]
+        if (transactionID.textContent?.trim() === transactionId) {
+
+            console.log(transactionID, 'é igual a ', transactionId)
+
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            //@ts-ignore
+            if (checkbox && checkbox.checked === false) {
+                //@ts-ignore
+                checkbox.checked = true;
+                
+                // Update the total amount and checked count
+                const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
+                if (amountText !== undefined) {
+                    const amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
+                    if (!isNaN(amount)) {
+                        totalAmount += amount;
+                        checkedCount++;
+                        updateTotalAmount(totalAmount, checkedCount);
+                    }
+                }
+            }
+        }
+
+        if (originalTransactionID.textContent?.trim() === transactionId && transactionType.textContent?.trim() === 'Pay') {
+
+            console.log(transactionID, 'é igual a ', transactionId)
+
+            const checkbox = row.querySelector('input[type="checkbox"]');
+            //@ts-ignore
+            if (checkbox && checkbox.checked === false) {
+                //@ts-ignore
+                checkbox.checked = true;
+                
+                // Update the total amount and checked count
+                const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
+                if (amountText !== undefined) {
+                    const amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
+                    if (!isNaN(amount)) {
+                        totalAmount += amount;
+                        checkedCount++;
+                        updateTotalAmount(totalAmount, checkedCount);
+                    }
+                }
+            }
+        }
+    });
+    copySelectedMerchantReferenceByCollectionsToClipboard();
+}
+
+
+
+
+
+
+
+// function listenToCheckboxChanges() {
+//     const rows = document.querySelectorAll('tbody tr');
+    
+//     rows.forEach(row => {
+//         const checkbox = row.querySelector('input[type="checkbox"]');
+//         if (checkbox) {
+//             checkbox.addEventListener('change', updateTotalAmountAndCount);
+//         }
+//     });
+// }
+
+
+//   document.addEventListener("DOMContentLoaded", function () {
+//     blockSalesforceHyperlinkIntoSalesforcePost();
+//   });
   
+//   async function blockSalesforceHyperlinkIntoSalesforcePost() {
+//     if (window.location.href.startsWith('https://trustlyinc.lightning.force.com/lightning/r/Case/')) {
+//   // This code will execute if the URL matches the pattern
+//         console.log('You are at a Case record page.');
+//         alert('página correta')
+//     }
+
+//     const divElement = document.querySelector(".cuf-body"); // Selecting the div with specific classes
+//     if (divElement instanceof HTMLElement) {
+//       alert('encontrou')
+
+//     }
+//         // Select all <a> elements in the document
+//         const links = document.querySelectorAll('a');
+
+//         // Loop through each <a> element
+//         links.forEach(link => {
+//         alert('okay')
+//         if (link.href && link.href.startsWith('https://trustly.one/admin-console')) {
+//             // Change the font size of the link
+//             link.style.fontSize = '48px'; // Change to the desired font size
+//         }
+//         });
+//   }
+
+//const adminURL = 'https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=deposit:f000b621-4e04-4e45-9dba-0d2b12f5dc71&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&paymentType=&transactionType=&transactionStatus=&authorizationStatus=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&system=&countries=&excludedFromCollections=&personId=&fiCustomerId=&customerState=&reasonCode=&teaId=&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=&originalStartIndex=&X-CSRFKey=';
+
+// async function callApiTest() {
+//     try {
+//         const response = await fetch(adminURL, {
+//           method: 'GET',
+//         //   headers: {
+//         //     'Content-Type': 'application/json',
+//         //   },
+//         //   body: JSON.stringify({
+//         //     url: 'your-url',
+//         //     mfa: 'your-mfa',
+//         //     refs: [['ref1', 'ref2']], // Example for refs, adjust as needed
+//         //     user: 'your-username',
+//         //     password: 'your-password',
+//         //   }),
+//         });
+
+//         if (!response.ok) {
+//           throw new Error('Network response was not ok');
+//         }
+
+//         //const responseData = await response.json();
+//         console.log(response)
+//       } catch (error) {
+//         console.error('Error fetching data:', error);
+//       }
+// }
+
+
+// async function addButtonMerchantPortal() {
+//     const modalFooter = document.querySelector('.modal-footer')?.textContent;
+//     if(modalFooter) {
+//         //alert(JSON.stringify(modalFooter));
+//         //modalFooter.innerHTML = `<p>Testando essa bagaça</p>`
+//     }
+// }
+
+  
+
+
+
+
+
 //console.error('Checkbox not found or invalid selector');
 
 // async function changeButtonTransactionsPage() {
