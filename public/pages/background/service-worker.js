@@ -2,6 +2,7 @@
 const collectionsURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=';
 const collectionsCustomerURl = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId='
 const transactionsURL = 'https://trustly.one/admin-console/transactions/details/';
+const feesURL = 'https://trustly.one/admin-console/transactions'
 
 
 function extractDataFromPage() {
@@ -11,7 +12,27 @@ function extractDataFromPage() {
         if (cells.length > 9 && cells[9].textContent.trim() === 'PENDING') {
             return {
                 transactionId: cells[1].textContent.trim(),
-                status: cells[9].textContent.trim()
+                originalTransaction: cells[2].textContent.trim(),
+                amount: cells[7].textContent.trim(),
+                status: cells[9].textContent.trim(),
+                return: cells[10].textContent.trim()
+            };
+        }
+        return null;
+    }).filter(item => item !== null); // Filter out null values
+    return data;
+}
+function extractDataFromFeePage() {
+    const rows = document.querySelectorAll('tr');
+    const data = Array.from(rows).map(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length > 1 ) { //&& cells[9].textContent.trim() === 'PENDING'
+            return {
+                transactionId: cells[1].textContent.trim(),
+                trxType: cells[7].textContent.trim(),
+                amount: cells[16].textContent.trim(),
+                status: cells[8].textContent.trim(),
+                reference: cells[14].textContent.trim()
             };
         }
         return null;
@@ -168,6 +189,89 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         openPOATab(url);
 
         return true; // Indicates that we want to use sendResponse asynchronously
+    }
+
+    if (message.action === 'checkCollectionsByTransaction') {
+        let finalUrl
+        const originalTabId = sender.tab.id;
+        const personId = message.personId; 
+        const customerID = message.customerId; 
+        const urlWithPersonId = `${collectionsURL}&personId=${personId}`; // Modify URL to include personId
+        const urlWithCustomerID = `${collectionsCustomerURl}&customerId=${customerID}`; // Modify URL to include personId
+
+        if(personId) {
+            finalUrl = urlWithPersonId
+        } else if (customerID) {
+            finalUrl = urlWithCustomerID
+        }else {
+            return
+        }
+
+        openTab(finalUrl, (tab) => {
+            const tabId = tab.id;
+            // Inject content script to extract data from the page
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                func: extractDataFromPage
+            }, (results) => {
+                if (results && results[0] && results[0].result) {
+                    const extractedData = results[0].result;
+                    console.log('Extracted Data:', extractedData);
+                    // Send the extracted data back to the content script
+                    sendResponse({ tabId: tabId, extractedData: extractedData });
+                } else {
+                    console.error('Error extracting data');
+                    sendResponse({ tabId: tabId, extractedData: [] });
+                }
+                // Close the tab after extracting data and switch back to the original tab
+                closeTab(tabId, originalTabId);
+            });
+        });
+
+        // Return true to indicate that we want to use sendResponse asynchronously
+        return true;
+    }
+
+    if (message.action === 'checkFeesByPersonId') {
+        let finalUrl
+        const originalTabId = sender.tab.id;
+        const personId = message.personId; 
+        const externalId = message.externalId; 
+
+        const urlFeeWithPersonId = `${feesURL}?personId=${personId}&paymentType=1`;
+        const urlFeeWithExternalId = `${feesURL}?customerExternalId=${externalId}&paymentType=1`;
+
+        if(personId) {
+            finalUrl = urlFeeWithPersonId
+        } else if (externalId) {
+            finalUrl = urlFeeWithExternalId
+        }else {
+            return
+        }
+
+        openTab(finalUrl, (tab) => {
+            const tabId = tab.id;
+            // Inject content script to extract data from the page
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                func: extractDataFromFeePage
+            }, (results) => {
+                if (results && results[0] && results[0].result) {
+                    const extractedData = results[0].result;
+                    console.log('Extracted Data:', extractedData);
+                    // Send the extracted data back to the content script
+                    sendResponse({ tabId: tabId, extractedData: extractedData });
+                } else {
+                    console.error('Error extracting data');
+                    sendResponse({ tabId: tabId, extractedData: [] });
+                }
+                // Close the tab after extracting data and switch back to the original tab
+                closeTab(tabId, originalTabId);
+            });
+        });
+
+        // Return true to indicate that we want to use sendResponse asynchronously
+        return true;
     }
 
 });

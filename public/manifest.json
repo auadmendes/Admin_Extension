@@ -1,13 +1,14 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "3.1.5",
+  "version": "3.5.0",
   "icons": {
     "16": "images/TGreen.png",
     "32": "images/TGreen.png",
     "48": "images/TGreen.png",
     "128": "images/TGreen.png"
 },
+
   "action": { "default_popup": "index.html" },
   "permissions": [
     "scripting",
@@ -19,6 +20,7 @@
   "background": {
     "service_worker": "pages/background/service-worker.js"
   },
+  
   "host_permissions": [
     "https://*/*",
     "https://trustly.one/admin-console/*",
@@ -38,7 +40,8 @@
       "css": ["pages/content/style.css"],
       "js": [
         "content.ts",
-        "pages/content/index.ts"
+        "pages/content/index.ts",
+        "pages/content/toast.ts"
       ]
     }
   ],
@@ -55,7 +58,10 @@
         "images/visible.png",
         "images/copy_selected_icon.png",
         "images/copy_all_icon.png",
-        "images/document.png"
+        "images/document.png",
+        "images/collections_price.png",
+        "images/arrow_down.png",
+        "images/loadingIcon.gif"
       ],
       "matches": ["<all_urls>"]
     }, 

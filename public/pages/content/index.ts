@@ -27,6 +27,10 @@ async function init() {
         someAllAmountsOnThePage();
     }
    
+    document.addEventListener('DOMContentLoaded', function() {
+        toast('testing my toast');
+        
+      });
 }
 
 init();
@@ -69,27 +73,86 @@ function tooltipToast(htmlContent, element) {
     // Position the toast next to the element
     const rect = element.getBoundingClientRect();
     toast.style.top = `${rect.top}px`;
-    toast.style.left = `${rect.right + 120}px`;
-    //toast.style.display = 'flex';
-    //toast.style.flex = '';
-
+    toast.style.left = `${rect.right + 120}px`; // Adjusted for better placement
 
     document.body.appendChild(toast);
 
     // Show the toast
     toast.style.opacity = "1";
 
-    // Remove toast when mouse leaves the element or the toast itself
+    // Remove toast after a delay
+    let removalTimeout;
+
     function removeToast() {
-        toast.style.opacity = "0";
-        setTimeout(() => {
-            toast.remove();
-        }, 500);
+        removalTimeout = setTimeout(() => {
+            toast.style.opacity = "0";
+            setTimeout(() => {
+                toast.remove();
+            }, 500); // Fade out duration
+        }, 1000); // Delay before starting fade out
+    }
+
+    // Clear the removal timeout if the mouse enters the toast
+    function clearRemoveToast() {
+        clearTimeout(removalTimeout);
     }
 
     element.addEventListener('mouseleave', removeToast);
     toast.addEventListener('mouseleave', removeToast);
+    toast.addEventListener('mouseenter', clearRemoveToast);
+    element.addEventListener('mouseenter', clearRemoveToast); // Optional: prevent removal if mouse re-enters the element
 }
+
+
+function tooltipToastPayment(htmlContent, element) {
+    const toast = document.createElement('div');
+    toast.classList.add('toast');
+    toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
+
+    // Position the toast next to the element
+    const rect = element.getBoundingClientRect();
+    toast.style.top = `${rect.top}px`;
+    toast.style.left = `${rect.right + 120}px`; // Adjusted for better placement
+
+    document.body.appendChild(toast);
+
+    // Show the toast
+    toast.style.opacity = "1";
+
+    // Remove toast after a delay
+    let removalTimeout;
+
+    function removeToast() {
+        toast.style.opacity = "0";
+        setTimeout(() => {
+            toast.remove();
+        }, 500); // Fade out duration
+    }
+
+    // Clear the removal timeout if the mouse enters the toast
+    function clearRemoveToast() {
+        clearTimeout(removalTimeout);
+    }
+
+    function handleOutsideClick(event) {
+        if (!toast.contains(event.target) && event.target !== element) {
+            removeToast();
+            document.removeEventListener('click', handleOutsideClick);
+        }
+    }
+
+    // Add event listeners
+    element.addEventListener('mouseleave', () => {
+        removalTimeout = setTimeout(removeToast, 1000);
+    });
+    toast.addEventListener('mouseleave', () => {
+        removalTimeout = setTimeout(removeToast, 1000);
+    });
+    toast.addEventListener('mouseenter', clearRemoveToast);
+    document.addEventListener('click', handleOutsideClick);
+}
+
+
 
 async function paymentTab() {
 
@@ -100,22 +163,233 @@ async function paymentTab() {
     const refunded = document.querySelector('#payment tbody tr:nth-child(16) td:nth-child(2)')?.textContent;
     const reversed = document.querySelector('#payment tbody tr:nth-child(17) td:nth-child(2)')?.textContent;
     const balance = document.querySelector('#payment tbody tr:nth-child(18) td:nth-child(2)')?.textContent;
-    const pending = document.querySelector('#payment tbody tr:nth-child(19) td:nth-child(2)')?.textContent;
+    const customerExternalID = document.querySelector('#info .table-hover tr:nth-child(3) td:nth-child(2)')?.textContent?.trim();
+    //const pending = document.querySelector('#payment tbody tr:nth-child(19) td:nth-child(2)')?.textContent;
 
+    const personID = document.querySelector('#info .table-hover tr:nth-child(2) td:nth-child(2)')?.textContent;
+    const customerID = document.querySelector('#info .table-hover tr:nth-child(1) td:nth-child(2)')?.textContent;
+
+    const arrowDown = chrome.runtime.getURL("images/arrow_down.png");
+    const loadingIcon = chrome.runtime.getURL("images/loadingIcon.gif");
+    let loadingPaymentBox = true;
+
+    
+    
     paymentBoxUl = document.createElement('ul');
     paymentBoxUl.style.background = 'transparent';
-
+    
     paymentBoxUl.id = 'paymentBox';
-
+    
     paymentBoxUl.innerHTML += `<h4>Payment</h4>`;
     paymentBoxUl.innerHTML += `<li>Original: <a href="${linkOriginalTransaction}">${originalTransaction}</a></li>`;
     paymentBoxUl.innerHTML += `<li>Paid: ${infoPaid}</li>`;
     paymentBoxUl.innerHTML += `<li>Refunded: ${refunded}</li>`;
-    paymentBoxUl.innerHTML += `<li>Reversed: ${reversed}</li>`;
+   
+    
     paymentBoxUl.innerHTML += `<li>Balance: ${balance}</li>`;
-    paymentBoxUl.innerHTML += `<li style="color: red;">Pending: ${pending}</li>`;
+    // paymentBoxUl.innerHTML += `<li style="color: red;">Pending: ${pending}</li>`;
+    
+    if (loadingPaymentBox) {
+        paymentBoxUl.innerHTML += `<li id="loadingPaymentBox" style="color: red;">
+            Loading information
+            <img style="width: 14px;" src=${loadingIcon} />
+        </li>`;
+    }
 
-    //creatingTheBoxInfo();
+    document.body.appendChild(paymentBoxUl); // Append paymentBoxUl to the body or desired container
+
+    const collectionsArray = [];
+    try {
+        const collectionsResult = await checkCollectionsByTransaction(personID, customerID);
+        collectionsArray.push(...collectionsResult);
+        
+    } catch (error) {
+        console.error('Error fetching collection data:', error);
+    }
+
+    const feesArray = [];
+    try {
+        const feesResult = await checkFeesByPersonId(personID, customerExternalID);
+        feesArray.push(...feesResult);
+       // paymentBoxUl.innerHTML += `<li class="tooltip-trigger-fee" style="color: red; cursor: pointer;">Fees ${feesArray.length}</li>`;
+
+    } catch (error) {
+        console.error('Error fetching collection data:', error);
+    }
+
+
+    const totalAmount = collectionsArray.reduce((total, event) => total + Number(event.amount), 0);
+    const tooltipHTML = `
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th colspan="4" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
+                    <span style="color: red; font-size: 18px;">Collections</span>
+                </th>
+            </tr>
+            <tr style="background: #262626; color: #0ee06e;">
+                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Original</th>
+                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
+                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
+                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Return</th>
+            </tr>
+        </thead>
+        <tbody>
+            ${collectionsArray.map(event => `
+                <tr>
+                    <td style="border: 0.5px solid #555; padding: 5px;">
+                        <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.originalTransaction}#payment" style="color: white;">
+                            <span>${event.originalTransaction}</span>
+                        </a>     
+                    </td>
+
+
+
+                    <td style="border: 0.5px solid #555; padding: 5px;">
+                        <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.transactionId}#payment" style="color: #0EA5E9;">
+                            <span  style="color: #0EA5E9;">${event.transactionId}</span>
+                        </a>     
+                    </td>
+
+                    <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
+
+                    <td style="border: 0.5px solid #555; padding: 5px;">${event.return}</td>
+                    
+                </tr>`).join('')}
+        </tbody>
+        <tfoot>
+            <tr>
+            <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Amount:</strong></td>
+            <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmount}</strong></td>
+            <td colspan="1" style="border: 0.5px solid #555; padding: 5px;"></td>
+            </tr>
+        </tfoot>
+    </table>`;
+
+
+    const totalAmountFees = feesArray.reduce((total, event) => total + Number(event.amount), 0);
+    const tooltipHTMLFees = `
+    <table style="width: 100%; border-collapse: collapse;">
+    <thead>
+        <tr>
+            <th colspan="5" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
+                <span style="color: #0ee06e; font-size: 18px;">Fees</span>
+            </th>
+        </tr>
+        <tr style="background: #262626; color: #0ee06e;">
+            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
+            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Trx Type</th>
+            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
+            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Reference</th>
+            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        ${feesArray.map(event => `
+            <tr>
+                <td style="border: 0.5px solid #555; padding: 5px;">
+                    <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.transactionId}#payment" style="color: #0EA5E9;">
+                        <span>${event.transactionId}</span>
+                    </a>    
+                </td>
+                <td style="border: 0.5px solid #555; padding: 5px;">${event.trxType}</td>
+                <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
+                <td style="border: 0.5px solid #555; padding: 5px;">
+                    <a target="_blank" title="This transaction is parent of the FEE" href="https://trustly.one/admin-console/transactions?merchantReference=${event.reference}#payment" style="color: #0EA5E9;">
+                        <span>${event.reference}</span>
+                    </a>    
+                </td>
+                <td style="border: 0.5px solid #555; padding: 5px;">${event.status}</td>
+            </tr>`).join('')}
+        </tbody>
+        <tfoot>
+        <tr>
+        <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Fee Amount:</strong></td>
+        <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmountFees}</strong></td>
+        <td style="border: 0.5px solid #555; padding: 5px;"></td>
+        <td style="border: 0.5px solid #555; padding: 5px;"></td>
+        </tr>
+    </tfoot>
+    </table>`;
+   
+
+    setTimeout(() => {
+        toast('testing my toast inside payment');
+        const rows = document.querySelectorAll('#fraud-analysis-result tr');
+        let foundUnauthorizedReturn = false;
+        let foundUnauthorizedReturnAmount = false;
+        let foundKnownSince = false;
+    
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 2) {
+                const rowZeroText = cells[0].textContent;
+                const rowOneText = cells[1].textContent;
+    
+                if (rowZeroText === 'totalReturnCount' && rowOneText) {
+                    console.log('Returns: ', rowOneText);
+                    paymentBoxUl.innerHTML += `<div style="display: flex">
+                        <li class="tooltip-trigger" style="color: red; cursor: pointer; margin-right: 5px;">Returns: ${rowOneText}</li> |
+                        <li class="tooltip-trigger-fee" style="color: #0ec06e; cursor: pointer; margin-left: 5px;">Fees ${feesArray.length}</li>
+                    </div>`;
+                    foundUnauthorizedReturn = true;
+                }
+                if (rowZeroText === 'totalReturnAmountLast90Days' && rowOneText) {
+                    if(Number(rowOneText) > 0) {
+                        console.log('Returns: ', rowOneText);
+                        paymentBoxUl.innerHTML += `<li class="tooltip-trigger_Removed" style="color: red;">
+                           ${rowOneText.length > 0 ? `<img style="width: 14px;" src="${arrowDown}" />`: ''}
+                            Return 90 days: $ ${rowOneText}
+                        </li>`;
+                        foundUnauthorizedReturnAmount = true;
+                    }
+                }
+                if (rowZeroText === 'known_since' && rowOneText) {
+                    if(rowOneText) {
+                        paymentBoxUl.innerHTML += `<li>Client since: ${rowOneText}</li>`;
+                        foundKnownSince = true;
+                    }
+                }
+                if (rowZeroText === 'customerIdCount' && rowOneText) {
+                    if(rowOneText) {
+                        paymentBoxUl.innerHTML += `<li>
+                            Customer ID: 
+                            <span style="color: red;">(${rowOneText})</span>
+                        </li>`;
+                        foundKnownSince = true;
+                    }
+                }
+            }
+        });
+
+        loadingPaymentBox = false;
+        const loadingElement = document.getElementById('loadingPaymentBox');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+
+        if (!foundUnauthorizedReturn && !foundUnauthorizedReturnAmount) {
+            paymentBoxUl.innerHTML += `<li>Reversed: ${reversed}</li>`;
+        } 
+        
+    }, 5000);
+    
+
+    paymentBoxUl.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.tagName === 'LI' && target.classList.contains('tooltip-trigger')) {
+            if (collectionsArray.length > 0) {
+                tooltipToastPayment(tooltipHTML, target); // Pass tooltipHTML as HTML content
+            }
+        }
+        if (target.tagName === 'LI' && target.classList.contains('tooltip-trigger-fee')) {
+            if (feesArray.length > 0) {
+                tooltipToastPayment(tooltipHTMLFees, target); // Pass tooltipHTML as HTML content
+            }
+        }
+    });
+
+
 }
 
 async function someAllAmountsOnThePage() { 
@@ -261,8 +535,7 @@ async function tabTransaction() {
                     titleEvent = row.cells[1].textContent;
                     const attributesEvent = row.cells[2].textContent;
                     
-                    console.log(row.cells[0].textContent, '===============')
-                    console.log(eventDate, ' ++++++++++++++++++++++++++++++++')
+
 
                     switch (true) {
                         case attributesEvent?.includes('R01'):
@@ -403,7 +676,7 @@ async function tabTransaction() {
                 }
             });
 
-            console.log('Matching events:', matchingEvents);
+            //console.log('Matching events:', matchingEvents);
         } else {
             console.log('No rows found in eventsTable');
         }
@@ -536,10 +809,16 @@ async function tabTransaction() {
 // }, 4000);
 
 
+
+
     //////////////////////////////////////////////
 
+
+
+
    //@ts-expect-error
-    const tooltipHTML = `<ul style="list-style-type: none; margin-left: -10px; padding: 3px 8px 1px 15px;"> 
+   
+   const tooltipHTML = `<ul style="list-style-type: none; margin-left: -10px; padding: 3px 8px 1px 15px;"> 
     ${matchingEvents.map(event => `<li style="padding-left: -10px;"> 
         ${event.date} - ${event.title} - ${event.status}
         </li>`).join('')}
@@ -827,12 +1106,12 @@ async function tabAccountCustomer() {
     //customerInfoBox.innerHTML += `<li><a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}">Person ID: ${personID}</a></li>`;
     
     if(personID || customerExternalID) {
-        accountCustomerBoxUl.innerHTML += `<li>
-        Fees (INSTANT):
-        <a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}&paymentType=1"> 
+        accountCustomerBoxUl.innerHTML += `<li style="display: flex; gap: 2px;">
+        <span style="color: #0ec06e;">Fees</span> <p style="font-size: 12px; margin-top: 2px;">(INSTANT)</p>:
+        <a style="color: #0ec06e;" target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}&paymentType=1"> 
              ${personID && "<strong>Person ID</strong>"} 
         </a> | 
-        <a target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}&paymentType=1"> 
+        <a style="color: #0ec06e;" target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}&paymentType=1"> 
              ${customerExternalID && "<strong>External ID </strong>"}
         </a>
     </li>`
@@ -947,9 +1226,11 @@ async function creatingTheBoxInfo(){
 
 async function createGroup() { 
     const group = document.querySelector('.btn-group ul');
+
     const copySelectIcon = chrome.runtime.getURL("images/copy_selected_icon.png");
     const copyAllIcon = chrome.runtime.getURL("images/copy_all_icon.png");
     const poaIcon = chrome.runtime.getURL("images/document.png");
+    const collectionsIcon = chrome.runtime.getURL("images/collections_price.png");
 
         if(group) {
             const liSelectedPtx = document.createElement('li');
@@ -991,12 +1272,14 @@ async function createGroup() {
                 All. Merchant. Ref
             </span>`
 
-            liPCollections.innerHTML = `<a title="Person ID" href="#" style="color: #0EA5E9;">
-            <span>Check Collections (person) </span>
+            liPCollections.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
+                <img style="width: 20px;" src=${collectionsIcon} />
+                <span>Check Collections (person) </span>
             </a>`;
 
 
             liCheckTransactions.innerHTML = `<a title="Check for transactions" href="#" style="color: #0EA5E9;">
+            <img style="width: 20px;" src=${collectionsIcon} />
             <span>Check Transactions</span>
             </a>`;
 
@@ -1504,11 +1787,55 @@ function openTabInServiceWorker(personId) {
         });
     });
 }
+
+async function checkCollectionsByTransaction(personId, customerID) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ action: 'checkCollectionsByTransaction', personId: personId, customerId: customerID }, (response) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                const data = response.extractedData; // Ensure this is an array
+                //showToast(data);
+                
+                data.forEach((item) => {
+                    // console.log('Transaction ID: ', item.transactionId);
+                    // console.log('Original transaction ID: ', item.originalTransaction);
+                    // console.log('Transaction Status: ', item.status);
+                    // console.log('Amount: ', item.amount);
+                });
+
+                resolve(data);
+            }
+        });
+    });
+}
+
+async function checkFeesByPersonId(personId, externalId) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ action: 'checkFeesByPersonId', personId: personId, externalId: externalId }, (response) => {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                const data = response.extractedData; // Ensure this is an array
+                //showToast(data);
+                
+                data.forEach((item) => {
+                    // console.log('Transaction ID: ', item.transactionId);
+                    // console.log('Type: ', item.trxType);
+                    // console.log('Amount: ', item.amount);
+                    // console.log('Reference: ', item.reference);
+                    // console.log('Status: ', item.status);
+                });
+
+                resolve(data);
+            }
+        });
+    });
+}
+
 function openTabInServiceWorkerForPOA(URL) {
     
     chrome.runtime.sendMessage({ action: 'createPOAByTable', urlID: URL }, () => {
-
-
         showToast('success!')
     });
 }
@@ -1651,155 +1978,6 @@ function checkCheckboxesByTransactionId(transactionId) {
     copySelectedMerchantReferenceByCollectionsToClipboard();
 }
 
-
-
-
-
-
-
-// function listenToCheckboxChanges() {
-//     const rows = document.querySelectorAll('tbody tr');
-    
-//     rows.forEach(row => {
-//         const checkbox = row.querySelector('input[type="checkbox"]');
-//         if (checkbox) {
-//             checkbox.addEventListener('change', updateTotalAmountAndCount);
-//         }
-//     });
-// }
-
-
-//   document.addEventListener("DOMContentLoaded", function () {
-//     blockSalesforceHyperlinkIntoSalesforcePost();
-//   });
-  
-//   async function blockSalesforceHyperlinkIntoSalesforcePost() {
-//     if (window.location.href.startsWith('https://trustlyinc.lightning.force.com/lightning/r/Case/')) {
-//   // This code will execute if the URL matches the pattern
-//         console.log('You are at a Case record page.');
-//         alert('página correta')
-//     }
-
-//     const divElement = document.querySelector(".cuf-body"); // Selecting the div with specific classes
-//     if (divElement instanceof HTMLElement) {
-//       alert('encontrou')
-
-//     }
-//         // Select all <a> elements in the document
-//         const links = document.querySelectorAll('a');
-
-//         // Loop through each <a> element
-//         links.forEach(link => {
-//         alert('okay')
-//         if (link.href && link.href.startsWith('https://trustly.one/admin-console')) {
-//             // Change the font size of the link
-//             link.style.fontSize = '48px'; // Change to the desired font size
-//         }
-//         });
-//   }
-
-//const adminURL = 'https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=deposit:f000b621-4e04-4e45-9dba-0d2b12f5dc71&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&paymentType=&transactionType=&transactionStatus=&authorizationStatus=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&system=&countries=&excludedFromCollections=&personId=&fiCustomerId=&customerState=&reasonCode=&teaId=&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=&originalStartIndex=&X-CSRFKey=';
-
-// async function callApiTest() {
-//     try {
-//         const response = await fetch(adminURL, {
-//           method: 'GET',
-//         //   headers: {
-//         //     'Content-Type': 'application/json',
-//         //   },
-//         //   body: JSON.stringify({
-//         //     url: 'your-url',
-//         //     mfa: 'your-mfa',
-//         //     refs: [['ref1', 'ref2']], // Example for refs, adjust as needed
-//         //     user: 'your-username',
-//         //     password: 'your-password',
-//         //   }),
-//         });
-
-//         if (!response.ok) {
-//           throw new Error('Network response was not ok');
-//         }
-
-//         //const responseData = await response.json();
-//         console.log(response)
-//       } catch (error) {
-//         console.error('Error fetching data:', error);
-//       }
-// }
-
-
-// async function addButtonMerchantPortal() {
-//     const modalFooter = document.querySelector('.modal-footer')?.textContent;
-//     if(modalFooter) {
-//         //alert(JSON.stringify(modalFooter));
-//         //modalFooter.innerHTML = `<p>Testando essa bagaça</p>`
-//     }
-// }
-
-  
-
-
-
-
-
-//console.error('Checkbox not found or invalid selector');
-
-// async function changeButtonTransactionsPage() {
-//     const iconFilter = await chrome.runtime.getURL("images/icon_filters.png");
-//     const iconColumns = await chrome.runtime.getURL("images/icon_check.png");
-
-//     const moreFilterA = document.querySelector('#toggle-filters');
-//     const moreColumnsA = document.querySelector('#toggle-columns');
-
-//     // const hrElement = document.querySelector('hr'); // Assuming there's only one <hr> element
-//     // const divAfterHr = hrElement.nextElementSibling;
-
-//     const divElementFilter = document.createElement('div');
-//     const divElementColumn = document.createElement('div');
-    
-
-    
-//     const divWithToggleFilters  = document.querySelector('div.form-group:has(a#toggle-filters)');
-
-//     // Check if the div is found before changing its background color
-//     if (divWithToggleFilters) {
-//         divElementFilter.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`
-        
-//         moreFilterA.style.color = '#025939';
-
-//         divWithToggleFilters.style.backgroundColor = '#d9ecd3'; 
-//         divWithToggleFilters.style.color = '#fff'
-//         divWithToggleFilters.style.display = 'flex';
-//         divWithToggleFilters.style.width = '135px';
-        
-        
-//         divWithToggleFilters.style.padding = '8px';
-//         divWithToggleFilters.style.borderRadius = '4px';
-        
-//         // Insert divElement into divWithToggleFilters
-//         divWithToggleFilters.insertBefore(divElementFilter, divWithToggleFilters.firstChild);
-//     }
-
-//     const divWithToggleColumns = document.querySelector('div.form-group:has(a#toggle-columns)');
-
-//     if (divWithToggleColumns) {
-//         divElementColumn.innerHTML = `<img src="${iconColumns}" style="height: 20px; margin-right: 5px;">`
-//         moreColumnsA.style.color = '#025939';
-        
-//         divWithToggleColumns.style.color = '#fff'
-//         divWithToggleColumns.style.display = 'flex';
-//         divWithToggleColumns.style.width = '135px';
-//         divWithToggleColumns.style.backgroundColor = '#d9ecd3';
-//         divWithToggleColumns.style.color = '#fff';
-//         divWithToggleColumns.style.padding = '8px';
-//         divWithToggleColumns.style.borderRadius = '4px';
-
-//         // Insert divElement into divWithToggleColumns
-//         divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
-//     }
-
-
-// }
 
 
 
