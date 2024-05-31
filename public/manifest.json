@@ -14,6 +14,7 @@
     "scripting",
     "tabs",
     "activeTab",
+    "webRequest",
     "contextMenus",
     "storage"
   ],
@@ -41,7 +42,15 @@
       "js": [
         "content.ts",
         "pages/content/index.ts",
-        "pages/content/toast.ts"
+        "pages/content/toast.ts",
+        "pages/content/payment.ts",
+        "pages/content/changeLogo.ts",
+        "pages/content/groupAction.ts",
+        "pages/content/buttonTransactionPage.ts",
+        "pages/utils/action_button/create-poa.ts",
+        "pages/utils/action_button/check-collections.ts",
+        "pages/utils/service_worker_functions/index.ts",
+        "pages/utils/count_button/count-button.ts"
       ]
     }
   ],

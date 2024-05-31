@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function toast(message) {
     
     const toast = document.createElement('div');

@@ -15,13 +15,15 @@ function extractDataFromPage() {
                 originalTransaction: cells[2].textContent.trim(),
                 amount: cells[7].textContent.trim(),
                 status: cells[9].textContent.trim(),
-                return: cells[10].textContent.trim()
+                return: cells[10].textContent.trim(),
+                created_at: cells[6].textContent.trim()
             };
         }
         return null;
     }).filter(item => item !== null); // Filter out null values
     return data;
 }
+
 function extractDataFromFeePage() {
     const rows = document.querySelectorAll('tr');
     const data = Array.from(rows).map(row => {
@@ -32,7 +34,8 @@ function extractDataFromFeePage() {
                 trxType: cells[7].textContent.trim(),
                 amount: cells[16].textContent.trim(),
                 status: cells[8].textContent.trim(),
-                reference: cells[14].textContent.trim()
+                reference: cells[14].textContent.trim(),
+                created_at: cells[4].textContent.trim().substring(0,10)
             };
         }
         return null;
@@ -130,6 +133,32 @@ function closeTab(tabId, originalTabId) {
         }
     });
 }
+
+function submitFormWithoutTab(url, formData) {
+    fetch(url, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      console.log('Response status:', response.status);
+      console.log('Response status text:', response.statusText);
+      console.log('Response headers:', Array.from(response.headers.entries()));
+  
+      if (!response.ok) {
+        return response.text().then(text => {
+          throw new Error(`Network response was not ok: ${response.status} ${response.statusText}: ${text}`);
+        });
+      }
+      return response.text();
+    })
+    .then(data => {
+      console.log('Form submitted successfully:', data);
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+    });
+  }
+  
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
@@ -272,6 +301,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Return true to indicate that we want to use sendResponse asynchronously
         return true;
+    }
+
+    if (message.action === 'createPOAByTableSubmit') {
+        const url = message.urlID;
+        submitFormWithoutTab(url, message.formData);
+        return true; // Indicates that we want to use sendResponse asynchronously
     }
 
 });

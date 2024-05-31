@@ -1,5 +1,5 @@
+//import { getStoredData } from '../../public/content.ts'; 
 
-//import { chrome } from 'chrome';
 
 type FieldObject = {
   label: string;
@@ -7,6 +7,29 @@ type FieldObject = {
   divField: string; 
   id: number | null;
 };
+
+interface Field {
+    book_mark: boolean;
+    divField: string;
+    label: string;
+  }
+  
+  interface ExtractedValues {
+    transactionId?: string;
+    merchantReference?: string;
+    ppTransactionId?: string;
+    teaId?: string;
+    customerExternalId?: string;
+    personId?: string;
+    mctCustomerName?: string;
+    paymentType?: string;
+    transactionType?: string;
+    transactionStatus?: string;
+    merchantId?: string;
+    paymentProviderId?: string;
+  }
+  
+  let fields: Field[] = [];
 
   export async function downloadKrakenResult() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -183,158 +206,209 @@ type FieldObject = {
   }
   
   export async function setFieldsToTheFormTransactions() {
+    const formPage = document.querySelector('#frmTransactions') as HTMLFormElement;
     
-    const formPage = document.querySelector('#frmTransactions');
     try {
-        const storedData = await getStoredData();
-        const divFieldVisible = document.createElement('div');
-        
-        divFieldVisible.id = 'divFieldVisible';
-        divFieldVisible.style.display = 'flex';
-        divFieldVisible.style.flexWrap = 'wrap';
-
-
-        if (storedData && Array.isArray(storedData)) {
-            fields = storedData;
-            //console.log(storedData)
-
-            const extractedValues = await getFieldValuesByUrl();
-            const { 
-                transactionId, 
-                merchantReference,
-                ppTransactionId,
-                teaId,
-                customerExternalId,
-                personId,
-                mctCustomerName,
-                paymentType,
-                transactionType,
-                transactionStatus,
-                merchantId,
-                paymentProviderId
-            } = extractedValues;
-
-            fields.forEach(item => {
-                if (item.book_mark === true) {
-
-                    const divElement = document.createElement('div');
-                    divElement.style.flexBasis = 'calc(25% - 2px)'; 
-                    
-                    const newItemDiv = document.createElement('div');
-                    newItemDiv.innerHTML = item.divField;
-                    const label = item.label;
-                    let selectElement;
-                    
-                    switch (label) {
-                        case 'Transaction Id:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', transactionId || '');
-                            break;
-                        case 'Merchant Reference:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', merchantReference || '') ;
-                            break;
-                        case 'FI Transaction Id:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', ppTransactionId || '') ;
-                            break;
-                        case 'TEA ID:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', teaId || '') ;
-                            break;
-                        case 'Customer External Id:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', customerExternalId || '') ;
-                            break;
-                        case 'Person ID:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', personId || '') ;
-                            break;
-                        case 'Customer Name:':
-                            newItemDiv.querySelector('input')?.setAttribute('value', mctCustomerName || '') ;
-                            break;
-                            case 'Payment Type:':
-                                // eslint-disable-next-line no-case-declarations
-                                const selectElement1 = newItemDiv.querySelector('select'); // Assign value inside the case block
-                                if (selectElement1) {
-                                    const typePayment = paymentType ? paymentType.split(',') : [];
-                                    selectElement1.querySelectorAll('option').forEach(option => {
-                                        if(typePayment.includes(option.value)) {
-                                            option.selected = true;
-                                            option.style.color = '#025939';
-                                            option.style.backgroundColor = '#d9ecd3';
-                                        }
-                                    })
-                                }
-                                break;
-                                case 'Transaction Type:':
-                                    // eslint-disable-next-line no-case-declarations
-                                    const selectElement2 = newItemDiv.querySelector('select');
-                                    if (selectElement2) {
-                                        // Loop through existing options and set selected based on URL values
-                                        const transactionTypes = transactionType ? transactionType.split(',') : [];
-                                        selectElement2.querySelectorAll('option').forEach(option => {
-                                            if (transactionTypes.includes(option.value)) {
-                                                option.selected = true;
-                                                option.style.color = '#025939';
-                                                option.style.backgroundColor = '#d9ecd3';
-                                            }
-                                        });
-                                        selectElement2.style.width = '187px';
-                                    }
-                                    break;
-                            case 'Transaction Status:':
-                               // eslint-disable-next-line no-case-declarations
-                               const selectElement3 = newItemDiv.querySelector('select'); 
-                                if (selectElement3) {
-                                    const statusTransaction = transactionStatus ? transactionStatus.split(',') : [];
-                                    selectElement3.querySelectorAll('option').forEach(option => {
-                                        if(statusTransaction.includes(option.value)) {
-                                            option.selected = true;
-                                            option.style.color = '#025939';
-                                            option.style.backgroundColor = '#d9ecd3';
-                                            //option.style.backgroundColor = 'transparent';
-                                            //option.style.color = 'red';
-                                        }
-                                    })
-                                }
-                                break;
-                            case 'Merchant:':
-                                selectElement = newItemDiv.querySelector('select'); // Assign value inside the case block
-                                if (selectElement) {
-                                    selectElement.value = merchantId || '';
-                                    //selectElement.style.width = '187px';
-                                }
-                                break;
-                            case 'FI:':
-                                selectElement = newItemDiv.querySelector('select'); // Assign value inside the case block
-                                if (selectElement) {
-                                    selectElement.value = paymentProviderId || '';
-                                    //selectElement.style.width = '187px';
-                                }
-                                break;
-                        default:
-                            break;
+      const storedData = await getStoredData();
+      const divFieldVisible = document.createElement('div');
+      divFieldVisible.id = 'divFieldVisible';
+      divFieldVisible.style.display = 'flex';
+      divFieldVisible.style.flexWrap = 'wrap';
+  
+      if (storedData && Array.isArray(storedData)) {
+        fields = storedData as Field[];
+        // console.log(storedData)
+  
+        const extractedValues = await getFieldValuesByUrl();
+        const { 
+          transactionId, 
+          merchantReference,
+          ppTransactionId,
+          teaId,
+          customerExternalId,
+          personId,
+          mctCustomerName,
+          paymentType,
+          transactionType,
+          transactionStatus,
+          merchantId,
+          paymentProviderId
+        } = extractedValues as ExtractedValues;
+  
+        fields.forEach((item: Field) => {
+          if (item.book_mark) {
+            const divElement = document.createElement('div');
+            divElement.style.flexBasis = 'calc(25% - 2px)';
+  
+            const newItemDiv = document.createElement('div');
+            newItemDiv.innerHTML = item.divField;
+            const label = item.label;
+            let selectElement: HTMLSelectElement | null;
+  
+            switch (label) {
+              case 'Transaction Id:':
+                newItemDiv.querySelector('input')?.setAttribute('value', transactionId || '');
+                break;
+              case 'Merchant Reference:':
+                newItemDiv.querySelector('input')?.setAttribute('value', merchantReference || '');
+                break;
+              case 'FI Transaction Id:':
+                newItemDiv.querySelector('input')?.setAttribute('value', ppTransactionId || '');
+                break;
+              case 'TEA ID:':
+                newItemDiv.querySelector('input')?.setAttribute('value', teaId || '');
+                break;
+              case 'Customer External Id:':
+                newItemDiv.querySelector('input')?.setAttribute('value', customerExternalId || '');
+                break;
+              case 'Person ID:':
+                newItemDiv.querySelector('input')?.setAttribute('value', personId || '');
+                break;
+              case 'Customer Name:':
+                newItemDiv.querySelector('input')?.setAttribute('value', mctCustomerName || '');
+                break;
+              case 'Payment Type:':
+                selectElement = newItemDiv.querySelector('select');
+                if (selectElement) {
+                  const typePayment = paymentType ? paymentType.split(',') : [];
+                  selectElement.querySelectorAll('option').forEach(option => {
+                    if (typePayment.includes(option.value)) {
+                      option.selected = true;
+                      option.style.color = '#025939';
+                      option.style.backgroundColor = '#d9ecd3';
                     }
-
-                    divElement.appendChild(newItemDiv);
-
-                    selectElement = newItemDiv.querySelector('select');
-                    if (selectElement) {
-                        selectElement.style.width = '187px';
+                  });
+                }
+                break;
+              case 'Transaction Type:':
+                selectElement = newItemDiv.querySelector('select');
+                if (selectElement) {
+                  const transactionTypes = transactionType ? transactionType.split(',') : [];
+                  selectElement.querySelectorAll('option').forEach(option => {
+                    if (transactionTypes.includes(option.value)) {
+                      option.selected = true;
+                      option.style.color = '#025939';
+                      option.style.backgroundColor = '#d9ecd3';
                     }
-
-                    divFieldVisible.appendChild(divElement);
+                  });
+                  selectElement.style.width = '187px';
                 }
-            });
-
-            if (formPage) {
-                const hrElement = formPage.querySelector('hr');
-                if (hrElement) {
-                    formPage.insertBefore(divFieldVisible, hrElement);
-                } else {
-                    formPage.appendChild(divFieldVisible);
+                break;
+              case 'Transaction Status:':
+                selectElement = newItemDiv.querySelector('select');
+                if (selectElement) {
+                  const statusTransaction = transactionStatus ? transactionStatus.split(',') : [];
+                  selectElement.querySelectorAll('option').forEach(option => {
+                    if (statusTransaction.includes(option.value)) {
+                      option.selected = true;
+                      option.style.color = '#025939';
+                      option.style.backgroundColor = '#d9ecd3';
+                    }
+                  });
                 }
+                break;
+              case 'Merchant:':
+                selectElement = newItemDiv.querySelector('select');
+                if (selectElement) {
+                  selectElement.value = merchantId || '';
+                }
+                break;
+              case 'FI:':
+                selectElement = newItemDiv.querySelector('select');
+                if (selectElement) {
+                  selectElement.value = paymentProviderId || '';
+                }
+                break;
+              default:
+                break;
             }
-        } else {
-            // Handle case where no stored data or incorrect data format
+  
+            divElement.appendChild(newItemDiv);
+  
+            selectElement = newItemDiv.querySelector('select');
+            if (selectElement) {
+              selectElement.style.width = '187px';
+            }
+  
+            divFieldVisible.appendChild(divElement);
+          }
+        });
+  
+        if (formPage) {
+          const hrElement = formPage.querySelector('hr');
+          if (hrElement) {
+            formPage.insertBefore(divFieldVisible, hrElement);
+          } else {
+            formPage.appendChild(divFieldVisible);
+          }
         }
+      } else {
+        // Handle case where no stored data or incorrect data format
+      }
     } catch (error) {
-        console.error('Error fetching stored data:', error);
+      console.error('Error fetching stored data:', error);
     }
+  }
+
+  async function getFieldValuesByUrl() {
+        
+    const url = new URL(window.location.href);
+    const params = url.searchParams;
+
+    // Example: get the value of merchantReference parameter
+    const transactionId = params.get('transactionId');
+    const merchantReference = params.get('merchantReference');
+    const customerExternalId = params.get('customerExternalId');
+    const personId = params.get('personId');
+    const mctCustomerName = params.get('mctCustomerName');
+    const teaId = params.get('teaId');
+    const ppTransactionId = params.get('ppTransactionId');
+    const merchantId = params.get('merchantId');
+    const paymentProviderId = params.get('paymentProviderId');
+    const framework = params.get('framework');
+    const accountName = params.get('accountName');
+
+    const transactionTypeParam = params.getAll('transactionType');
+    const transactionType = transactionTypeParam.join(',')
+    
+    const paymentTypeParams = params.getAll('paymentType');
+    const paymentType = paymentTypeParams.join(',');
+
+    const transactionStatusParams = params.getAll('transactionStatus');
+    const transactionStatus = transactionStatusParams.join(',');
+
+    // You can repeat this for other parameters you want to extract
+    // const transactionId = params.get('transactionId');
+    // const ppTransactionId = params.get('ppTransactionId');
+    // ...
+
+    // Log or use the extracted values as needed
+    console.log('Merchant Reference:', merchantReference);
+    // console.log('Transaction ID:', transactionId);
+    // console.log('PP Transaction ID:', ppTransactionId);
+    // ...
+
+    // If you want to save these values for later use, you can store them in variables or an object
+    const extractedValues = {
+        merchantReference,
+        transactionId,
+        customerExternalId,
+        personId,
+        mctCustomerName,
+        teaId,
+        ppTransactionId,
+        paymentType,
+        transactionType,
+        transactionStatus,
+        merchantId,
+        paymentProviderId,
+        framework,
+        accountName
+        // transactionId,
+        // ppTransactionId,
+        // ...
+    };
+
+    return extractedValues;
 }
 

@@ -1,0 +1,23 @@
+declare let fields: unknown[];
+declare function initiateFields(): Promise<void>;
+declare function getFieldValuesByUrl(): Promise<{
+    merchantReference: string | null;
+    transactionId: string | null;
+    customerExternalId: string | null;
+    personId: string | null;
+    mctCustomerName: string | null;
+    teaId: string | null;
+    ppTransactionId: string | null;
+    paymentType: string;
+    transactionType: string;
+    transactionStatus: string;
+    merchantId: string | null;
+    paymentProviderId: string | null;
+    framework: string | null;
+    accountName: string | null;
+}>;
+declare function getStoredData(): Promise<unknown>;
+declare function setFieldsToTheFormTransactions(): Promise<void>;
+declare function checkIsDarkModeSaved(): Promise<void>;
+declare function darkMode(): Promise<void>;
+declare function removeDivsUntilHr(): Promise<void>;

@@ -1,5 +1,6 @@
+/* eslint-disable prefer-const */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-
+//import toast = require('./toast');
 
 let transactionBoxUl;
 let paymentBoxUl;
@@ -7,10 +8,14 @@ let fiBoxUl;
 let accountCustomerBoxUl;
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 let teaID;
-    let totalAmount = 0;
-    let amount = 0;
-    let checkedCount = 0;
-    const adminCustomersUrl = 'https://trustly.one/admin-console/transactions/customers'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, prefer-const
+let totalAmount = 0;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let amount = 0;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+let checkedCount = 0;
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const adminCustomersUrl = 'https://trustly.one/admin-console/transactions/customers'
 
 async function init() {
     createGroup();
@@ -19,18 +24,6 @@ async function init() {
     creatingTheBoxInfo();
     
     addLinkToMerchantReferenceOnTransactionsList();
-    
-    changeButtonTransactionsPage();
-
-    //if (location.href.startsWith(urlAdmin) || location.href.startsWith(customer)) {
-    if(!location.href.startsWith(adminCustomersUrl)) {
-        someAllAmountsOnThePage();
-    }
-   
-    document.addEventListener('DOMContentLoaded', function() {
-        toast('testing my toast');
-        
-      });
 }
 
 init();
@@ -41,29 +34,29 @@ function getStyleString(styleObj) {
         .join(';');
 }
 
-function showToast(message) {
+// function showToast(message) {
     
-    const toast = document.createElement('div');
-    toast.classList.add('toast');
-    toast.textContent = message;
-
-    
-    document.body.appendChild(toast);
+//     const toast = document.createElement('div');
+//     toast.classList.add('toast');
+//     toast.textContent = message;
 
     
-    void toast.offsetWidth;
+//     document.body.appendChild(toast);
 
-    // Show the toast
-    toast.style.opacity = "1";
+    
+//     void toast.offsetWidth;
 
-    // Remove after seconds
-    setTimeout(() => {
-        toast.style.opacity = "0";
-        setTimeout(() => {
-            toast.remove();
-        }, 500); 
-    }, 2000); 
-}
+//     // Show the toast
+//     toast.style.opacity = "1";
+
+//     // Remove after seconds
+//     setTimeout(() => {
+//         toast.style.opacity = "0";
+//         setTimeout(() => {
+//             toast.remove();
+//         }, 500); 
+//     }, 2000); 
+// }
 
 function tooltipToast(htmlContent, element) {
     const toast = document.createElement('div');
@@ -102,7 +95,6 @@ function tooltipToast(htmlContent, element) {
     toast.addEventListener('mouseenter', clearRemoveToast);
     element.addEventListener('mouseenter', clearRemoveToast); // Optional: prevent removal if mouse re-enters the element
 }
-
 
 function tooltipToastPayment(htmlContent, element) {
     const toast = document.createElement('div');
@@ -152,8 +144,6 @@ function tooltipToastPayment(htmlContent, element) {
     document.addEventListener('click', handleOutsideClick);
 }
 
-
-
 async function paymentTab() {
 
     const originalTransaction = document.querySelector('#transaction tbody tr:nth-child(3) td:nth-child(2) a:first-child')?.textContent;
@@ -173,7 +163,7 @@ async function paymentTab() {
     const loadingIcon = chrome.runtime.getURL("images/loadingIcon.gif");
     let loadingPaymentBox = true;
 
-    
+  
     
     paymentBoxUl = document.createElement('ul');
     paymentBoxUl.style.background = 'transparent';
@@ -201,7 +191,9 @@ async function paymentTab() {
     const collectionsArray = [];
     try {
         const collectionsResult = await checkCollectionsByTransaction(personID, customerID);
-        collectionsArray.push(...collectionsResult);
+        if(collectionsResult) {
+            collectionsArray.push(...collectionsResult);
+        }
         
     } catch (error) {
         console.error('Error fetching collection data:', error);
@@ -223,7 +215,7 @@ async function paymentTab() {
     <table style="width: 100%; border-collapse: collapse;">
         <thead>
             <tr>
-                <th colspan="4" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
+                <th colspan="5" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
                     <span style="color: red; font-size: 18px;">Collections</span>
                 </th>
             </tr>
@@ -232,6 +224,7 @@ async function paymentTab() {
                 <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
                 <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
                 <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Return</th>
+                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Created at</th>
             </tr>
         </thead>
         <tbody>
@@ -254,6 +247,7 @@ async function paymentTab() {
                     <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
 
                     <td style="border: 0.5px solid #555; padding: 5px;">${event.return}</td>
+                    <td style="border: 0.5px solid #555; padding: 5px;">${event.created_at}</td>
                     
                 </tr>`).join('')}
         </tbody>
@@ -261,7 +255,7 @@ async function paymentTab() {
             <tr>
             <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Amount:</strong></td>
             <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmount}</strong></td>
-            <td colspan="1" style="border: 0.5px solid #555; padding: 5px;"></td>
+            <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"></td>
             </tr>
         </tfoot>
     </table>`;
@@ -272,7 +266,7 @@ async function paymentTab() {
     <table style="width: 100%; border-collapse: collapse;">
     <thead>
         <tr>
-            <th colspan="5" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
+            <th colspan="6" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
                 <span style="color: #0ee06e; font-size: 18px;">Fees</span>
             </th>
         </tr>
@@ -281,6 +275,7 @@ async function paymentTab() {
             <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Trx Type</th>
             <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
             <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Reference</th>
+            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Created at</th>
             <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Status</th>
         </tr>
     </thead>
@@ -299,6 +294,7 @@ async function paymentTab() {
                         <span>${event.reference}</span>
                     </a>    
                 </td>
+                <td style="border: 0.5px solid #555; padding: 5px;">${event.created_at}</td>
                 <td style="border: 0.5px solid #555; padding: 5px;">${event.status}</td>
             </tr>`).join('')}
         </tbody>
@@ -308,13 +304,15 @@ async function paymentTab() {
         <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmountFees}</strong></td>
         <td style="border: 0.5px solid #555; padding: 5px;"></td>
         <td style="border: 0.5px solid #555; padding: 5px;"></td>
+        <td style="border: 0.5px solid #555; padding: 5px;">
+            
+        </td>
         </tr>
     </tfoot>
     </table>`;
-   
+   //<button id="copyButton" style="padding: 5px 10px; background: #0ee06e; color: #000; border: none; cursor: pointer;">Copy</button>
 
     setTimeout(() => {
-        toast('testing my toast inside payment');
         const rows = document.querySelectorAll('#fraud-analysis-result tr');
         let foundUnauthorizedReturn = false;
         let foundUnauthorizedReturnAmount = false;
@@ -330,7 +328,7 @@ async function paymentTab() {
                     console.log('Returns: ', rowOneText);
                     paymentBoxUl.innerHTML += `<div style="display: flex">
                         <li class="tooltip-trigger" style="color: red; cursor: pointer; margin-right: 5px;">Returns: ${rowOneText}</li> |
-                        <li class="tooltip-trigger-fee" style="color: #0ec06e; cursor: pointer; margin-left: 5px;">Fees ${feesArray.length}</li>
+                        <li class="tooltip-trigger-fee" style="color: #448C30; cursor: pointer; margin-left: 5px;">Fees ${feesArray.length}</li>
                     </div>`;
                     foundUnauthorizedReturn = true;
                 }
@@ -372,6 +370,9 @@ async function paymentTab() {
             paymentBoxUl.innerHTML += `<li>Reversed: ${reversed}</li>`;
         } 
         
+
+
+
     }, 5000);
     
 
@@ -389,99 +390,10 @@ async function paymentTab() {
         }
     });
 
-
-}
-
-async function someAllAmountsOnThePage() { 
-    const iconCheck = chrome.runtime.getURL("images/icon_check.png");
-
-    const rows = document.querySelectorAll('#sortabletable tbody tr');
-    const resetButton = document.querySelector('#reset-search');
-    const checkboxAll = document.querySelector('#sortabletable thead th input[type="checkbox"]');
-
-    if (checkboxAll instanceof HTMLInputElement) {
-        checkboxAll.addEventListener('change', () => {
-            if (checkboxAll.checked) {
-                console.log('Checking all checkboxes');
-                checkedCount = 0;
-                rows.forEach(row => {
-                    const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
-                    if (amountText !== undefined) {
-                        amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
-                        if (!isNaN(amount)) {
-                            totalAmount += amount;
-                            checkedCount++;
-                        }
-                    }
-                });
-            } else {
-                console.log('Unchecking all');
-                totalAmount = 0;
-                checkedCount = 0;
-            }
-            updateTotalAmount(totalAmount, checkedCount);
-        });
-    }
-
-    rows.forEach(row => {
-        const checkbox = row.querySelector('td:nth-child(1) input[type="checkbox"]');
-        if (checkbox instanceof HTMLInputElement) { 
-            checkbox.addEventListener('change', () => {
-                const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
-
-                if(amountText !== undefined) {
-                    amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
-                    if (!isNaN(amount)) {
-                        if (checkbox.checked) {
-                            totalAmount += amount;
-                            checkedCount++;
-                        } else {
-                            totalAmount -= amount; 
-                            checkedCount--;
-                        }
-                        updateTotalAmount(totalAmount, checkedCount);
-                    }
-                }
-            });
-        } else {
-            //console.error('Checkbox not found or invalid selector');
-        }
-    });
-
-    if (resetButton instanceof HTMLInputElement) {
-        resetButton.style.color = '#fff';
-
-        resetButton.classList.add('btn', 'btn-primary');
-
-        const newDiv = document.createElement('div');
-
-        newDiv.style.display = 'inline-block';
-        newDiv.style.alignItems = 'center';
-        newDiv.style.justifyContent = 'center';
-        newDiv.style.background = '#d9ecd3';
-        newDiv.style.padding = '7px 10px 8px 10px';
-        newDiv.style.marginLeft = '5px';
-        newDiv.style.borderRadius = '4px';
-        newDiv.style.marginTop = '5px';
-        newDiv.innerHTML = `<span style="color: #025939;"> 
-            <img style="width: 20px;" src=${iconCheck} />
-            <span id="checkedCountDisplay"> ${checkedCount}</span>
-
-            | Total: <span id="totalAmountDisplay" style="color: #012340;">Total: $${totalAmount.toFixed(2)}</span>
-
-        </span>`;
-        resetButton.insertAdjacentElement('afterend', newDiv);
-    }
-}
-
-function updateTotalAmount(amount, checkedCount) {
-    const totalAmountDisplay = document.getElementById('totalAmountDisplay');
-    const checkedCountDisplay = document.getElementById('checkedCountDisplay');
-    
-    if (totalAmountDisplay && checkedCountDisplay) {
-        totalAmountDisplay.textContent = `$${amount.toFixed(2)}`;
-        checkedCountDisplay.textContent = checkedCount;
-    }
+    // document.getElementById('copyButton').addEventListener('click', () => {
+    //     alert('criando')
+    //     copyToClipboard(tooltipHTMLFees);
+    // });
 }
 
 async function tabTransaction() {
@@ -870,12 +782,23 @@ async function tabTransaction() {
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text)
     .then(() => {
-        showToast(`Copied to clipboard`);
+        toast(`Copied to clipboard`);
     })
     .catch((error) => {
         console.error('Failed to copy:', error);
     });
 }
+
+// function copyToClipboardHTML(html) {
+//     const blobInput = new Blob([html], { type: 'text/html' });
+//     const clipboardItem = new ClipboardItem({ 'text/html': blobInput });
+
+//     navigator.clipboard.write([clipboardItem]).then(() => {
+//         showToast('Copied to clipboard');
+//     }).catch((error) => {
+//         console.error('Failed to copy:', error);
+//     });
+// }
 
 async function tabFiTransaction() {
     
@@ -1023,7 +946,7 @@ async function tabFiTransaction() {
                 // Construct the URL
                 const url = `https://trustly.one/admin-console/disputes?emails=${encodeURIComponent(email)}&flasher.message=The+execution+of+the+Dispute+Report+was+triggered.&ptxs=${fiTransactionId}`;
                 openTabInServiceWorkerForPOA(url);
-                showToast(`Creating POA for ${fiTransactionId}`);
+                toast(`Creating POA for ${fiTransactionId}`);
             }
         }
     });
@@ -1107,11 +1030,12 @@ async function tabAccountCustomer() {
     
     if(personID || customerExternalID) {
         accountCustomerBoxUl.innerHTML += `<li style="display: flex; gap: 2px;">
-        <span style="color: #0ec06e;">Fees</span> <p style="font-size: 12px; margin-top: 2px;">(INSTANT)</p>:
-        <a style="color: #0ec06e;" target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}&paymentType=1"> 
+        <span style="color: #448C30;">Fees</span> 
+        <span style="color: #BFBFBF; font-size: 13px;">(Instant):</span>
+        <a style="color: #448C30" target="_blank" href="https://trustly.one/admin-console/transactions?personId=${personID}&paymentType=1"> 
              ${personID && "<strong>Person ID</strong>"} 
         </a> | 
-        <a style="color: #0ec06e;" target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}&paymentType=1"> 
+        <a style="color: #448C30;" target="_blank" href="https://trustly.one/admin-console/transactions?customerExternalId=${customerExternalID}&paymentType=1"> 
              ${customerExternalID && "<strong>External ID </strong>"}
         </a>
     </li>`
@@ -1229,7 +1153,7 @@ async function createGroup() {
 
     const copySelectIcon = chrome.runtime.getURL("images/copy_selected_icon.png");
     const copyAllIcon = chrome.runtime.getURL("images/copy_all_icon.png");
-    const poaIcon = chrome.runtime.getURL("images/document.png");
+    //const poaIcon = chrome.runtime.getURL("images/document.png");
     const collectionsIcon = chrome.runtime.getURL("images/collections_price.png");
 
         if(group) {
@@ -1237,9 +1161,9 @@ async function createGroup() {
             const liPtxAll = document.createElement('li');
             const liRef = document.createElement('li');
             const liMRef = document.createElement('li');
-            const liPCollections = document.createElement('li');
+            //const liPCollections = document.createElement('li');
             const liCheckTransactions = document.createElement('li');
-            const liCreateProofOfAuthorization = document.createElement('li');
+            //const liCreateProofOfAuthorization = document.createElement('li');
 
             const newLinkSelectedPtx = document.createElement('a');
             const newLinkSelectedPtxAll = document.createElement('a');
@@ -1272,10 +1196,10 @@ async function createGroup() {
                 All. Merchant. Ref
             </span>`
 
-            liPCollections.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
-                <img style="width: 20px;" src=${collectionsIcon} />
-                <span>Check Collections (person) </span>
-            </a>`;
+            // liPCollections.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
+            //     <img style="width: 20px;" src=${collectionsIcon} />
+            //     <span>Check Collections (person) </span>
+            // </a>`;
 
 
             liCheckTransactions.innerHTML = `<a title="Check for transactions" href="#" style="color: #0EA5E9;">
@@ -1283,10 +1207,10 @@ async function createGroup() {
             <span>Check Transactions</span>
             </a>`;
 
-            liCreateProofOfAuthorization.innerHTML = `<a title="Check the transactions you want to generate POA" href="#" style="color: #0EA5E9;">
-            <img style="width: 20px;" src=${poaIcon} />
-            <span>Generate POA</span>
-            </a>`;
+            // liCreateProofOfAuthorization.innerHTML = `<a title="Check the transactions you want to generate POA" href="#" style="color: #0EA5E9;">
+            // <img style="width: 20px;" src=${poaIcon} />
+            // <span>Generate POA</span>
+            // </a>`;
 
 
             //newLinkSelectedPtx.textContent = 'Copy Selected PTX'
@@ -1315,20 +1239,20 @@ async function createGroup() {
             });
 
 
-            liPCollections.addEventListener('click', function(event) {
-                event.preventDefault();
-                const url = new URL(window.location.href);
-                const params = url.searchParams;
-                const personId = params.get('personId');
+            // liPCollections.addEventListener('click', function(event) {
+            //     event.preventDefault();
+            //     const url = new URL(window.location.href);
+            //     const params = url.searchParams;
+            //     const personId = params.get('personId');
 
-               // const personIdInput = document.getElementById('personId')?.textContent;
+            //    // const personIdInput = document.getElementById('personId')?.textContent;
 
-                if(personId !== "") {
-                    openTabInServiceWorker(personId);
-                } else {
-                    showToast('Please search for the Person ID to use this functionality')
-                }
-            });
+            //     if(personId !== "") {
+            //         openTabInServiceWorker(personId);
+            //     } else {
+            //         showToast('Please search for the Person ID to use this functionality')
+            //     }
+            // });
 
             liCheckTransactions.addEventListener('click', function(event) {
                 event.preventDefault();
@@ -1340,12 +1264,12 @@ async function createGroup() {
 
             });
 
-            liCreateProofOfAuthorization.addEventListener('click', function(event) {
-                event.preventDefault();
+            // liCreateProofOfAuthorization.addEventListener('click', function(event) {
+            //     event.preventDefault();
 
-                createProofOfAuthorization();
+            //     createProofOfAuthorization();
 
-            });
+            // });
 
 
             liSelectedPtx.appendChild(newLinkSelectedPtx);
@@ -1357,9 +1281,9 @@ async function createGroup() {
             group.appendChild(liPtxAll);
             group.appendChild(liMRef);
             group.appendChild(liRef);
-            group.appendChild(liPCollections);
+            //group.appendChild(liPCollections);
             //group.appendChild(liCheckTransactions);
-            group.appendChild(liCreateProofOfAuthorization);
+            //group.appendChild(liCreateProofOfAuthorization);
         }
        
 }
@@ -1373,7 +1297,7 @@ function copySelectedMerchantReferenceToClipboard() {
     const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
     
     if (selectedRows.length === 0) {
-        showToast('No rows selected.')
+        toast('No rows selected.')
     
         return;
     }
@@ -1409,7 +1333,7 @@ function copySelectedMerchantReferenceToClipboard() {
     navigator.clipboard.writeText(selectedValuesString)
         .then(() => {
             //console.log('Selected values copied to the clipboard:', selectedValuesString);
-            showToast('Merchant Reference - Copied to clipboard'); 
+            toast('Merchant Reference - Copied to clipboard'); 
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -1425,7 +1349,7 @@ function copySelectedPtxToClipboard() {
     const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
 
     if (selectedRows.length === 0) {
-        showToast('No rows selected.')
+        toast('No rows selected.')
         //console.log('No rows selected.');
         return;
     }
@@ -1446,7 +1370,7 @@ function copySelectedPtxToClipboard() {
     navigator.clipboard.writeText(selectedValuesString)
         .then(() => {
             //console.log('Selected values copied to the clipboard:', selectedValuesString);
-            showToast('Selected PTXs, Copied to clipboard'); // Display a toast notification
+            toast('Selected PTXs, Copied to clipboard'); // Display a toast notification
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -1461,7 +1385,7 @@ async function copyAllPtxToClipboard() {
         const allRows = Array.from(table.querySelectorAll('tbody tr'));
 
     if (allRows.length === 0) {
-        showToast('Copying all');
+        toast('Copying all');
         return;
     }
 
@@ -1480,7 +1404,7 @@ async function copyAllPtxToClipboard() {
     
     navigator.clipboard.writeText(allFiTrxIdsString)
         .then(() => {
-            showToast('All PTXs, copied to the clipboard'); 
+            toast('All PTXs, copied to the clipboard'); 
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -1522,7 +1446,7 @@ async function copyAllMerchantReferenceToClipboard() {
     navigator.clipboard.writeText(breakAllValuesString)
         .then(() => {
             //console.log('Values with class "break-all" copied to the clipboard:', breakAllValuesString);
-            showToast('All Merchant Ref, Copied to clipboard'); // Display a toast notification
+            toast('All Merchant Ref, Copied to clipboard'); // Display a toast notification
         })
         .catch(error => {
             console.error('Error copying to clipboard:', error);
@@ -1555,78 +1479,6 @@ async function addLinkToMerchantReferenceOnTransactionsList() {
     });
 }
 
-// function buildURLWithPtxParameters(selectedPtxs) {
-//     const baseURL = 'https://trustly.one/admin-console/disputes?';
-//     const ptxParameter = 'ptxs=' + selectedPtxs.join('%2C%0D%0A');
-//     return baseURL + ptxParameter;
-// }
-  
-function createProofOfAuthorization() {
-    const table = document.getElementById('sortabletable');
-
-    if (table) {
-        const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
-
-        if (selectedRows.length === 0) {
-            showToast('No rows selected.');
-            return;
-        }
-
-        const selectedValues = [];
-
-        // Iterate through each selected row
-        selectedRows.forEach(checkbox => {
-            const row = checkbox.closest('tr');
-            const fiTrxId = row?.querySelector('.viewFiTrxId-col')?.textContent;
-            if (fiTrxId) {
-                //@ts-ignore
-                selectedValues.push(fiTrxId.trim());
-            }
-        });
-
-        // Check if any selected row does not have a ptx value
-        const missingPtxValues = selectedRows.some(row => {
-            const fiTrxId = row.closest('tr')?.querySelector('.viewFiTrxId-col')?.textContent;
-            //@ts-ignore
-            return !selectedValues.includes(fiTrxId.trim());
-        });
-
-        if (missingPtxValues) {
-            showToast('Not all selected rows have a PTX value.');
-            return;
-        }
-
-        // Join the selected values with URL-encoded commas and newlines
-        const selectedValuesString = selectedValues.join('%2C%0D%0A');
-
-        // Extract the email from the dropdown
-        const email = getEmailFromDropdown();
-        console.log('My email is  <<<<<< ', email)
-
-        if (email) {
-            // Construct the URL
-            const url = `https://trustly.one/admin-console/disputes?emails=${encodeURIComponent(email)}&flasher.message=The+execution+of+the+Dispute+Report+was+triggered.&ptxs=${selectedValuesString}`;
-            openTabInServiceWorkerForPOA(url);
-            // console.log(url);
-
-            // // Open the URL in a new tab
-            // window.open(url, '_blank');
-
-            // // Optionally, copy the URL to the clipboard
-            // navigator.clipboard.writeText(url)
-            //     .then(() => {
-            //         showToast('URL with selected PTXs copied to clipboard'); // Display a toast notification
-            //     })
-            //     .catch(error => {
-            //         showToast('Error copying to clipboard:', error);
-            //     });
-        } else {
-            showToast('Failed to extract email from dropdown');
-        }
-    }
-}
-
-
 function getEmailFromDropdown() {
     // Select the 'a' element with the id "user-menu"
     const userMenu = document.getElementById('user-menu');
@@ -1650,10 +1502,6 @@ function getEmailFromDropdown() {
 
     return null;
 }
-
-
-
-
 async function changeLogo() {
     const trustlyLogoGreen = chrome.runtime.getURL("images/trustlyGreen.png");
   
@@ -1662,131 +1510,9 @@ async function changeLogo() {
     if (anchorElement) {
       anchorElement.style.background = `transparent url(${trustlyLogoGreen}) no-repeat scroll left center / 160px`;
     } else {
-      //console.warn("Couldn't find element with id 'pwmb-brand'");
+      return;
     }
   }
-  
-
-async function changeButtonTransactionsPage() {
-    const iconFilter = chrome.runtime.getURL("images/icon_filters.png");
-    const iconColumns = chrome.runtime.getURL("images/icon_check.png");
-  
-    const moreFilterA = document.querySelector('#toggle-filters'); // 
-    const moreColumnsA = document.querySelector('#toggle-columns');
-  
-    const divElementFilter = document.createElement('div');
-    const divElementColumn = document.createElement('div'); // Create once
-  
-    const divWithToggleFilters = document.querySelector('div.form-group:has(a#toggle-filters)');
-  
-    if(moreFilterA instanceof HTMLElement) {
-        moreFilterA.style.textDecoration = 'none';
-        moreFilterA.style.color = '#025939';
-    }
-
-    if (divWithToggleFilters instanceof HTMLDivElement) {
-      divElementFilter.innerHTML = `<img src="${iconFilter}" style="height: 20px; margin-right: 5px;">`;
-      
-      
-  
-      divWithToggleFilters.style.backgroundColor = '#d9ecd3';
-      divWithToggleFilters.style.color = '#fff';
-      divWithToggleFilters.style.display = 'flex';
-      divWithToggleFilters.style.width = '135px';
-      divWithToggleFilters.style.padding = '8px';
-      divWithToggleFilters.style.borderRadius = '4px';
-  
-      divWithToggleFilters.insertBefore(divElementFilter, divWithToggleFilters.firstChild);
-    }
-  
-    const divWithToggleColumns = document.querySelector('div.form-group:has(a#toggle-columns)');
-  
-    if (divWithToggleColumns instanceof HTMLDivElement) {
-      divElementColumn.innerHTML = `<img src="${iconColumns}" style="height: 20px; margin-right: 5px;">`;
-      
-      if(moreColumnsA instanceof HTMLElement) {
-        moreColumnsA.style.textDecoration = 'none';
-        moreColumnsA.style.color = '#025939';
-      }
-      
-      divWithToggleColumns.style.color = '#fff';
-      divWithToggleColumns.style.display = 'flex';
-      divWithToggleColumns.style.width = '135px';
-      divWithToggleColumns.style.backgroundColor = '#d9ecd3';
-      divWithToggleColumns.style.padding = '8px';
-      divWithToggleColumns.style.borderRadius = '4px';
-  
-      divWithToggleColumns.insertBefore(divElementColumn.cloneNode(true), divWithToggleColumns.firstChild);
-    }
-  }
-
-//   async function listenPage() {
-//     //document.addEventListener('DOMContentLoaded', function () {
-//         // Find the input element with ID 'personId'
-//         const personIdInput = document.getElementById('personId');
-
-//         // Create a button element
-//         const openTabButton = document.createElement('button');
-//         openTabButton.id = 'yourButtonId'; 
-//         openTabButton.textContent = 'Open Tab';
-//         openTabButton.style.background = 'red';
-//         openTabButton.style.color = 'white';
-        
-//         // Add event listener to the button
-//         openTabButton.addEventListener('click', function () {
-//             // Call the function to open a tab using the service worker with the input value
-//             if (personIdInput instanceof HTMLInputElement) {
-//                 openTabInServiceWorker(personIdInput.value);
-//             }
-//         });
-
-//         // Append the button to the body
-//         document.body.appendChild(openTabButton);
-//     //});
-// }
-
-// function getEmailFromDropdown() {
-//     // Select the 'a' element with the id "user-menu"
-//     const userMenu = document.getElementById('user-menu');
-
-//     if (userMenu) {
-//         // Extract the text content from the 'a' element
-//         const userMenuText = userMenu.textContent;
-
-//         // Extract the username from the text content using regular expression
-//         const usernameRegex = /([\w.-]+)\s*$/; // Matches alphanumeric characters, hyphens, and dots at the end of the string
-//         const match = userMenuText?.match(usernameRegex);
-//         const extractedUsername = match ? match[1] : null;
-
-//         if (extractedUsername) {
-//             // Construct the email address
-//             const email = `${extractedUsername}@trustly.com`;
-
-//             console.log(extractedUsername, ' >>>>>>>>>>>>>>>>');
-
-//             return email;
-//         }
-//     }
-
-//     return null;
-// }
-
-function openTabInServiceWorker(personId) {
-    // Send a message to the service worker to open a tab with the personId
-    chrome.runtime.sendMessage({ action: 'openTab', personId: personId }, (response) => {
-        const tabId = response.tabId;
-        const data = response.extractedData; // Extracted data from the service worker
-        console.log('New tab opened with ID:', tabId);
-        console.log('New Data:', data);
-
-            
-        data.forEach((item) => {
-            checkCheckboxesByTransactionId(item.transactionId)
-            
-            console.log('Transaction ID:', item.transactionId);
-        });
-    });
-}
 
 async function checkCollectionsByTransaction(personId, customerID) {
     return new Promise((resolve, reject) => {
@@ -1797,12 +1523,9 @@ async function checkCollectionsByTransaction(personId, customerID) {
                 const data = response.extractedData; // Ensure this is an array
                 //showToast(data);
                 
-                data.forEach((item) => {
-                    // console.log('Transaction ID: ', item.transactionId);
-                    // console.log('Original transaction ID: ', item.originalTransaction);
-                    // console.log('Transaction Status: ', item.status);
-                    // console.log('Amount: ', item.amount);
-                });
+                // data.forEach((item) => {
+
+                // });
 
                 resolve(data);
             }
@@ -1820,11 +1543,7 @@ async function checkFeesByPersonId(personId, externalId) {
                 //showToast(data);
                 
                 data.forEach((item) => {
-                    // console.log('Transaction ID: ', item.transactionId);
-                    // console.log('Type: ', item.trxType);
-                    // console.log('Amount: ', item.amount);
-                    // console.log('Reference: ', item.reference);
-                    // console.log('Status: ', item.status);
+
                 });
 
                 resolve(data);
@@ -1836,7 +1555,7 @@ async function checkFeesByPersonId(personId, externalId) {
 function openTabInServiceWorkerForPOA(URL) {
     
     chrome.runtime.sendMessage({ action: 'createPOAByTable', urlID: URL }, () => {
-        showToast('success!')
+        toast('success!')
     });
 }
 
@@ -1861,165 +1580,3 @@ function openTabInServiceWorkerForTransactions(transactionIds) {
     });
     
 }
-
-
-function copySelectedMerchantReferenceByCollectionsToClipboard() {
-    
-    const table = document.getElementById('sortabletable');
-
-    if(table) {
-    
-    const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
-    
-    if (selectedRows.length === 0) {
-        showToast('No rows selected.')
-    
-        return;
-    }
-
-    const selectedValues = [] ;
-
-    
-    selectedRows.forEach(checkbox => {
-        const row = checkbox.closest('tr');
-        const fiTrxId = row?.querySelector('.break-all')?.textContent;
-        const fiOriginal = row?.querySelector('.viewOriginalTrxId-col')?.textContent;
-        const transaction = row?.querySelector('td:nth-child(2)')?.textContent;
-        const dateTimeCreated = row?.querySelector('td:nth-child(5)')?.textContent;
-        const trType = row?.querySelector('td:nth-child(8)')?.textContent;
-        const country = row?.querySelector('td:nth-child(12)')?.textContent;
-        const amount = row?.querySelector('td:nth-child(17)')?.textContent;
-
-       // const data =  fiOriginal + ' - ' + fiTrxId + ' - ' + country + ' '  + amount;
-       // const dataCapture = transaction + ' - ' + fiTrxId + ' - ' + country + ' ' + amount;
-
-        const data = `${fiOriginal}  -  ${fiTrxId}  -  ${country === 'US' ? 'USD ' : 'CAD '} ${amount} - created-at ${dateTimeCreated}`;
-        const dataCapture = `${transaction}  -  ${fiTrxId}  -  ${country === 'US' ? 'USD ' : 'CAD '} ${amount} - created-at ${dateTimeCreated}`;
-
-        if (trType !== 'Capture') {
-            //@ts-expect-error
-            selectedValues.push(data);
-        }else {
-            //@ts-expect-error
-            selectedValues.push(dataCapture);
-        }
-    });
-    
-    const selectedValuesString = selectedValues.join('\n');
-
-    
-    navigator.clipboard.writeText(selectedValuesString)
-        .then(() => {
-            //console.log('Selected values copied to the clipboard:', selectedValuesString);
-            showToast('Merchant Reference - Copied to clipboard'); 
-        })
-        .catch(error => {
-            console.error('Error copying to clipboard:', error);
-        });
-    }
-}
-
-
-function checkCheckboxesByTransactionId(transactionId) {
-    // Select all rows in the table body
-    const rows = document.querySelectorAll('tbody tr');
-    
-    rows.forEach(row => {
-        // Second column (td[1])
-        const transactionID = row.querySelectorAll('td')[1];
-        const originalTransactionID = row.querySelectorAll('td')[28];
-        const transactionType = row.querySelectorAll("td")[7]
-        if (transactionID.textContent?.trim() === transactionId) {
-
-            console.log(transactionID, 'é igual a ', transactionId)
-
-            const checkbox = row.querySelector('input[type="checkbox"]');
-            //@ts-ignore
-            if (checkbox && checkbox.checked === false) {
-                //@ts-ignore
-                checkbox.checked = true;
-                
-                // Update the total amount and checked count
-                const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
-                if (amountText !== undefined) {
-                    const amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
-                    if (!isNaN(amount)) {
-                        totalAmount += amount;
-                        checkedCount++;
-                        updateTotalAmount(totalAmount, checkedCount);
-                    }
-                }
-            }
-        }
-
-        if (originalTransactionID.textContent?.trim() === transactionId && transactionType.textContent?.trim() === 'Pay') {
-
-            console.log(transactionID, 'é igual a ', transactionId)
-
-            const checkbox = row.querySelector('input[type="checkbox"]');
-            //@ts-ignore
-            if (checkbox && checkbox.checked === false) {
-                //@ts-ignore
-                checkbox.checked = true;
-                
-                // Update the total amount and checked count
-                const amountText = row.querySelector('td:nth-child(17)')?.textContent?.trim();
-                if (amountText !== undefined) {
-                    const amount = parseFloat(amountText.replace(/[^0-9.-]+/g, ''));
-                    if (!isNaN(amount)) {
-                        totalAmount += amount;
-                        checkedCount++;
-                        updateTotalAmount(totalAmount, checkedCount);
-                    }
-                }
-            }
-        }
-    });
-    copySelectedMerchantReferenceByCollectionsToClipboard();
-}
-
-
-
-
-
-
-
-
-// Testing here
-// async function callApiTest() {
-//     try {
-//         const response = await fetch('http://localhost:3333/users', {
-//           method: 'POST',
-//           headers: {
-//             'Content-Type': 'application/json',
-//           },
-//           body: JSON.stringify({
-//             url: 'your-url',
-//             mfa: 'your-mfa',
-//             refs: [['ref1', 'ref2']], // Example for refs, adjust as needed
-//             user: 'your-username',
-//             password: 'your-password',
-//           }),
-//         });
-
-//         if (!response.ok) {
-//           throw new Error('Network response was not ok');
-//         }
-
-//         const responseData = await response.json();
-//         data = responseData
-//         alert(data);
-//       } catch (error) {
-//         console.error('Error fetching data:', error);
-//       }
-// }
-
-
-// async function addButtonMerchantPortal() {
-//     const modalFooter = document.querySelector('.modal-footer')?.textContent;
-//     if(modalFooter) {
-//         //alert(JSON.stringify(modalFooter));
-//         //modalFooter.innerHTML = `<p>Testando essa bagaça</p>`
-//     }
-// }
-//'https://trustly.one/admin-console/transactions?transactionId=7741566102&transactionId=7741566078&ppTransactionId=&merchantReference=&teaId=&merchantId=&paymentProviderId=&paymentId=&customerExternalId=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&personId=&fiCustomerId=&customerState=&reasonCode=&teaId=&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=mrbq7ikd47j9uqv311vis4atuj'
