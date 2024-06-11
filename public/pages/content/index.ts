@@ -24,6 +24,7 @@ async function init() {
     creatingTheBoxInfo();
     
     addLinkToMerchantReferenceOnTransactionsList();
+
 }
 
 init();
@@ -58,15 +59,54 @@ function getStyleString(styleObj) {
 //     }, 2000); 
 // }
 
+// function tooltipToast(htmlContent, element) {
+//     const toast = document.createElement('div');
+//     toast.classList.add('toast');
+//     toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
+
+//     // Position the toast next to the element
+//     const rect = element.getBoundingClientRect();
+//     toast.style.top = `${rect.top}px`;
+//     toast.style.left = `${rect.right + 120}px`; // Adjusted for better placement
+
+//     document.body.appendChild(toast);
+
+//     // Show the toast
+//     toast.style.opacity = "1";
+
+//     // Remove toast after a delay
+//     let removalTimeout;
+
+//     function removeToast() {
+//         removalTimeout = setTimeout(() => {
+//             toast.style.opacity = "0";
+//             setTimeout(() => {
+//                 toast.remove();
+//             }, 500); // Fade out duration
+//         }, 1000); // Delay before starting fade out
+//     }
+
+//     // Clear the removal timeout if the mouse enters the toast
+//     function clearRemoveToast() {
+//         clearTimeout(removalTimeout);
+//     }
+
+//     element.addEventListener('mouseleave', removeToast);
+//     toast.addEventListener('mouseleave', removeToast);
+//     toast.addEventListener('mouseenter', clearRemoveToast);
+//     element.addEventListener('mouseenter', clearRemoveToast); // Optional: prevent removal if mouse re-enters the element
+// }
+
 function tooltipToast(htmlContent, element) {
     const toast = document.createElement('div');
     toast.classList.add('toast');
     toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
 
-    // Position the toast next to the element
-    const rect = element.getBoundingClientRect();
-    toast.style.top = `${rect.top}px`;
-    toast.style.left = `${rect.right + 120}px`; // Adjusted for better placement
+    // Center the toast horizontally and set it 200px from the top
+    toast.style.position = 'fixed';
+    toast.style.top = '100px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
 
     document.body.appendChild(toast);
 
@@ -96,15 +136,20 @@ function tooltipToast(htmlContent, element) {
     element.addEventListener('mouseenter', clearRemoveToast); // Optional: prevent removal if mouse re-enters the element
 }
 
+
 function tooltipToastPayment(htmlContent, element) {
     const toast = document.createElement('div');
     toast.classList.add('toast');
     toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
 
     // Position the toast next to the element
-    const rect = element.getBoundingClientRect();
-    toast.style.top = `${rect.top}px`;
-    toast.style.left = `${rect.right + 120}px`; // Adjusted for better placement
+    // const rect = element.getBoundingClientRect();
+    // toast.style.top = `${rect.top}px`;
+    // toast.style.left = `${rect.right + 120}px`; 
+    toast.style.position = 'fixed';
+    toast.style.top = '200px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
 
     document.body.appendChild(toast);
 
@@ -159,7 +204,7 @@ async function paymentTab() {
     const personID = document.querySelector('#info .table-hover tr:nth-child(2) td:nth-child(2)')?.textContent;
     const customerID = document.querySelector('#info .table-hover tr:nth-child(1) td:nth-child(2)')?.textContent;
 
-    const arrowDown = chrome.runtime.getURL("images/arrow_down.png");
+    //const arrowDown = chrome.runtime.getURL("images/arrow_down.png");
     const loadingIcon = chrome.runtime.getURL("images/loadingIcon.gif");
     let loadingPaymentBox = true;
 
@@ -192,6 +237,7 @@ async function paymentTab() {
     try {
         const collectionsResult = await checkCollectionsByTransaction(personID, customerID);
         if(collectionsResult) {
+            //toast(collectionsResult)
             collectionsArray.push(...collectionsResult);
         }
         
@@ -211,105 +257,116 @@ async function paymentTab() {
 
 
     const totalAmount = collectionsArray.reduce((total, event) => total + Number(event.amount), 0);
+    //toast(totalAmount)
     const tooltipHTML = `
-    <table style="width: 100%; border-collapse: collapse;">
-        <thead>
-            <tr>
-                <th colspan="5" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
-                    <span style="color: red; font-size: 18px;">Collections</span>
-                </th>
-            </tr>
-            <tr style="background: #262626; color: #0ee06e;">
-                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Original</th>
-                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
-                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
-                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Return</th>
-                <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Created at</th>
-            </tr>
-        </thead>
-        <tbody>
-            ${collectionsArray.map(event => `
+    <div style="max-height: 400px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+        <style>
+            /* For Firefox */
+            .tooltip-content::-webkit-scrollbar {
+                display: none;
+            }
+        </style>
+        <table class="tooltip-content" style="width: 100%; border-collapse: collapse;">
+            <thead>
                 <tr>
-                    <td style="border: 0.5px solid #555; padding: 5px;">
-                        <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.originalTransaction}#payment" style="color: white;">
-                            <span>${event.originalTransaction}</span>
-                        </a>     
-                    </td>
+                    <th colspan="5" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
+                        <span style="color: red; font-size: 18px;">Collections</span>
+                    </th>
+                </tr>
+                <tr style="background: #262626; color: #0ee06e;">
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Original</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Return</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Created at</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${collectionsArray.map(event => `
+                    <tr>
+                        <td style="border: 0.5px solid #555; padding: 5px;">
+                            <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.originalTransaction}#payment" style="color: white;">
+                                <span>${event.originalTransaction}</span>
+                            </a>     
+                        </td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">
+                            <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.transactionId}#payment" style="color: #0EA5E9;">
+                                <span  style="color: #0EA5E9;">${event.transactionId}</span>
+                            </a>     
+                        </td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.return}</td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.created_at}</td>
+                    </tr>`).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Amount:</strong></td>
+                    <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmount}</strong></td>
+                    <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>`;
 
-
-
-                    <td style="border: 0.5px solid #555; padding: 5px;">
-                        <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.transactionId}#payment" style="color: #0EA5E9;">
-                            <span  style="color: #0EA5E9;">${event.transactionId}</span>
-                        </a>     
-                    </td>
-
-                    <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
-
-                    <td style="border: 0.5px solid #555; padding: 5px;">${event.return}</td>
-                    <td style="border: 0.5px solid #555; padding: 5px;">${event.created_at}</td>
-                    
-                </tr>`).join('')}
-        </tbody>
-        <tfoot>
-            <tr>
-            <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Amount:</strong></td>
-            <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmount}</strong></td>
-            <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"></td>
-            </tr>
-        </tfoot>
-    </table>`;
 
 
     const totalAmountFees = feesArray.reduce((total, event) => total + Number(event.amount), 0);
     const tooltipHTMLFees = `
-    <table style="width: 100%; border-collapse: collapse;">
-    <thead>
-        <tr>
-            <th colspan="6" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
-                <span style="color: #0ee06e; font-size: 18px;">Fees</span>
-            </th>
-        </tr>
-        <tr style="background: #262626; color: #0ee06e;">
-            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
-            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Trx Type</th>
-            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
-            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Reference</th>
-            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Created at</th>
-            <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Status</th>
-        </tr>
-    </thead>
-    <tbody>
-        ${feesArray.map(event => `
-            <tr>
-                <td style="border: 0.5px solid #555; padding: 5px;">
-                    <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.transactionId}#payment" style="color: #0EA5E9;">
-                        <span>${event.transactionId}</span>
-                    </a>    
-                </td>
-                <td style="border: 0.5px solid #555; padding: 5px;">${event.trxType}</td>
-                <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
-                <td style="border: 0.5px solid #555; padding: 5px;">
-                    <a target="_blank" title="This transaction is parent of the FEE" href="https://trustly.one/admin-console/transactions?merchantReference=${event.reference}#payment" style="color: #0EA5E9;">
-                        <span>${event.reference}</span>
-                    </a>    
-                </td>
-                <td style="border: 0.5px solid #555; padding: 5px;">${event.created_at}</td>
-                <td style="border: 0.5px solid #555; padding: 5px;">${event.status}</td>
-            </tr>`).join('')}
-        </tbody>
-        <tfoot>
-        <tr>
-        <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Fee Amount:</strong></td>
-        <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmountFees}</strong></td>
-        <td style="border: 0.5px solid #555; padding: 5px;"></td>
-        <td style="border: 0.5px solid #555; padding: 5px;"></td>
-        <td style="border: 0.5px solid #555; padding: 5px;">
-            
-        </td>
-        </tr>
-    </tfoot>
-    </table>`;
+    <div style="max-height: 400px; overflow-y: auto; scrollbar-width: none; -ms-overflow-style: none;">
+        <style>
+            /* For Firefox */
+            .tooltip-content::-webkit-scrollbar {
+                display: none;
+            }
+        </style>
+        <table class="tooltip-content" style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr>
+                    <th colspan="6" style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">
+                        <span style="color: #0ee06e; font-size: 18px;">Fees</span>
+                    </th>
+                </tr>
+                <tr style="background: #262626; color: #0ee06e;">
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Transaction</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Trx Type</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Amount</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Reference</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Created at</th>
+                    <th style="border: 0.5px solid #555; padding: 5px; text-align: left; background: #262626">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${feesArray.map(event => `
+                    <tr>
+                        <td style="border: 0.5px solid #555; padding: 5px;">
+                            <a target="_blank" style="color: white;" title="This is the fee" href="https://trustly.one/admin-console/transactions/details/${event.transactionId}#payment" style="color: #0EA5E9;">
+                                <span>${event.transactionId}</span>
+                            </a>    
+                        </td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.trxType}</td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.amount}</td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">
+                            <a target="_blank" title="This transaction is parent of the FEE" href="https://trustly.one/admin-console/transactions?merchantReference=${event.reference}#payment" style="color: #0EA5E9;">
+                                <span>${event.reference}</span>
+                            </a>    
+                        </td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.created_at}</td>
+                        <td style="border: 0.5px solid #555; padding: 5px;">${event.status}</td>
+                    </tr>`).join('')}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2" style="border: 0.5px solid #555; padding: 5px;"><strong>Total Fee Amount:</strong></td>
+                    <td style="border: 0.5px solid #555; padding: 5px;"><strong>${totalAmountFees}</strong></td>
+                    <td style="border: 0.5px solid #555; padding: 5px;"></td>
+                    <td style="border: 0.5px solid #555; padding: 5px;"></td>
+                    <td style="border: 0.5px solid #555; padding: 5px;"></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>`;
+
    //<button id="copyButton" style="padding: 5px 10px; background: #0ee06e; color: #000; border: none; cursor: pointer;">Copy</button>
 
     setTimeout(() => {
@@ -332,16 +389,16 @@ async function paymentTab() {
                     </div>`;
                     foundUnauthorizedReturn = true;
                 }
-                if (rowZeroText === 'totalReturnAmountLast90Days' && rowOneText) {
-                    if(Number(rowOneText) > 0) {
-                        console.log('Returns: ', rowOneText);
-                        paymentBoxUl.innerHTML += `<li class="tooltip-trigger_Removed" style="color: red;">
-                           ${rowOneText.length > 0 ? `<img style="width: 14px;" src="${arrowDown}" />`: ''}
-                            Return 90 days: $ ${rowOneText}
-                        </li>`;
-                        foundUnauthorizedReturnAmount = true;
-                    }
-                }
+                // if (rowZeroText === 'totalReturnAmountLast90Days' && rowOneText) {
+                //     if(Number(rowOneText) > 0) {
+                //         console.log('Returns: ', rowOneText);
+                //         paymentBoxUl.innerHTML += `<li class="tooltip-trigger_Removed" style="color: red;">
+                //            ${rowOneText.length > 0 ? `<img style="width: 14px;" src="${arrowDown}" />`: ''}
+                //             Return 90 days: $ ${rowOneText}
+                //         </li>`;
+                //         foundUnauthorizedReturnAmount = true;
+                //     }
+                // }
                 if (rowZeroText === 'known_since' && rowOneText) {
                     if(rowOneText) {
                         paymentBoxUl.innerHTML += `<li>Client since: ${rowOneText}</li>`;
@@ -728,10 +785,12 @@ async function tabTransaction() {
 
 
 
-   //@ts-expect-error
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    //@ts-expect-error
    
    const tooltipHTML = `<ul style="list-style-type: none; margin-left: -10px; padding: 3px 8px 1px 15px;"> 
     ${matchingEvents.map(event => `<li style="padding-left: -10px;"> 
+    
         ${event.date} - ${event.title} - ${event.status}
         </li>`).join('')}
     </ul>`;
@@ -751,14 +810,16 @@ async function tabTransaction() {
     }
 
     if(statusCode !== ''){
-        transactionBoxUl.innerHTML += `<li>Status: ${statusCode}</li>`
+        transactionBoxUl.innerHTML += `<li class="tooltip-statuscode-trigger" style="cursor: pointer;">Status: ${statusCode}</li>`
     } else {
         transactionBoxUl.innerHTML += `<li style="color: #ccc; text-decoration: line-through;">Status: not found</li>`
     }
 
     
     if(eventsTitle != null) {
-        transactionBoxUl.innerHTML += `<li style="color: red;">${eventsTitle}: ${denyDescription ? 'Return: ' + denyDescription.substring(0,4) : "Could not provide"}</li>`
+        transactionBoxUl.innerHTML += `<li style="color: red;">${eventsTitle}
+        : ${denyDescription ? 'Return: ' + denyDescription.substring(0,4) 
+        : "Could not provide"}</li>`
     }
 
     if(isVip) {
@@ -775,7 +836,15 @@ async function tabTransaction() {
             }
         }
     });
-    
+    transactionBoxUl.addEventListener('click', function(event) {
+        const target = event.target;
+        if (target.tagName === 'LI' && target.classList.contains('tooltip-statuscode-trigger')) {
+            if(matchingEvents.length > 0) {
+                toast('Meu test'); // Pass tooltipHTML as HTML content
+            }
+            tooltipToast('Meu test', target);
+        }
+    });
 
 }
 
@@ -842,6 +911,8 @@ async function tabFiTransaction() {
     let daysDifference;
 
     if(expectToComplete !== '') {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        //@ts-expect-error
         expectedDate = new Date(expectToComplete);
         const currentDate = new Date();
         const timeDifference = expectedDate.getTime() - currentDate.getTime();
@@ -946,6 +1017,8 @@ async function tabFiTransaction() {
                 // Construct the URL
                 const url = `https://trustly.one/admin-console/disputes?emails=${encodeURIComponent(email)}&flasher.message=The+execution+of+the+Dispute+Report+was+triggered.&ptxs=${fiTransactionId}`;
                 openTabInServiceWorkerForPOA(url);
+                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                //@ts-expect-error
                 toast(`Creating POA for ${fiTransactionId}`);
             }
         }
@@ -989,6 +1062,8 @@ async function tabAccountCustomer() {
         
 
         if (button) {
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          //@ts-expect-error
           button.click();
           console.log('Clicked the second button');
 
@@ -1003,6 +1078,8 @@ async function tabAccountCustomer() {
         }
 
         if (button2) {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            //@ts-expect-error
             button2.click();
             console.log('Clicked the second button');
   
@@ -1052,19 +1129,10 @@ async function tabAccountCustomer() {
         ${customerID && personID ? `|` : ''} 
         
         ${personID ? `<a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=${personID}&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
-        ${personID && "<strong>Person:</strong>"} 
+        ${personID && "<strong>Person</strong>"} 
         </a>`: ''}
        </li>`
     }
-
-//    if(personID) {
-//     accountCustomerBoxUl.innerHTML += `<li>
-//         <a target="_blank" href="https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=${personID}&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint=&inWaiting=&startIndex=0&originalStartIndex=0&X-CSRFKey=v0d4d62bdsa61u2taqa8s3fll3"> 
-//             <strong>Person ID: </strong> ${personID}
-//         </a>
-//    </li>`
-//    }
-//https://trustly.one/admin-console/transactions?transactionId=&ppTransactionId=&merchantReference=&originalTransactionId=&merchantId=&paymentProviderId=&paymentId=&ppTrxStatusCode=&personId=&fingerprint=&customerName=&taxId=&mctCustomerName=&customerExternalId=31840931&accountName=&routingNumber=&accountNumber=&iban=&minRiskIndex=&maxRiskIndex=&deviceFingerprint=&ipAddr=&description=&payproId=&excludedFromReports=&verificationFICode=&verificationRoutingNumber=&verificationAccountNumber=&verified=&verificationStatus=&minAmount=&maxAmount=&minPaid=&maxPaid=&minRefunded=&maxRefunded=&startCreateDate=&endCreateDate=&startUpdateDate=&endUpdateDate=&startProcessedDate=&endProcessedDate=&startCompletedDate=&endCompletedDate=&customerCollectionRef=&framework=&excludedFromCollections=&fiCustomerId=&customerState=&reasonCode=&teaId=&externalAccId=&ppSubtypeId=&paymentProcessorId=&signature=&orderBy=createdAt&sortOrder=desc&ppTrxInstantSettle=&metadata.SIMPLE.clc.propertyId=&metadata.SIMPLE.clc.gamingAssetNumber=&metadata.RANGE.clc.datetimeQR=&metadata.RANGE.clc.datetimeQR=&metadata.SIMPLE.clc.playerCardNumber=&startIndex=0&originalStartIndex=0&X-CSRFKey=g6588nite5toevjploo2rubdsj
 
     accountCustomerBoxUl.innerHTML += `<li class="loading" style="color: red;">Finding Tea ID...</li>`;
     setTimeout(() => {
@@ -1150,13 +1218,16 @@ async function creatingTheBoxInfo(){
 
 async function createGroup() { 
     const group = document.querySelector('.btn-group ul');
+    const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
 
     const copySelectIcon = chrome.runtime.getURL("images/copy_selected_icon.png");
     const copyAllIcon = chrome.runtime.getURL("images/copy_all_icon.png");
     //const poaIcon = chrome.runtime.getURL("images/document.png");
     const collectionsIcon = chrome.runtime.getURL("images/collections_price.png");
-
-        if(group) {
+    //const url = new URL(window.location.href);
+    //const urlDetails = 'https://trustly.one/admin-console/transactions/details/'
+    //alert(groupButton)
+        if(group && groupButton == 'Action') {
             const liSelectedPtx = document.createElement('li');
             const liPtxAll = document.createElement('li');
             const liRef = document.createElement('li');
@@ -1502,6 +1573,7 @@ function getEmailFromDropdown() {
 
     return null;
 }
+
 async function changeLogo() {
     const trustlyLogoGreen = chrome.runtime.getURL("images/trustlyGreen.png");
   
@@ -1521,7 +1593,7 @@ async function checkCollectionsByTransaction(personId, customerID) {
                 reject(chrome.runtime.lastError);
             } else {
                 const data = response.extractedData; // Ensure this is an array
-                //showToast(data);
+                //toast(JSON.stringify(data));
                 
                 // data.forEach((item) => {
 

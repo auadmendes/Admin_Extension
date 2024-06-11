@@ -1,8 +1,14 @@
 /* eslint-disable no-undef */
+
+
+
 const collectionsURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=';
+//const urlFingerprint = 'https://trustly.one/admin-console/collections/index/?fingerprint=';
 const collectionsCustomerURl = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId='
 const transactionsURL = 'https://trustly.one/admin-console/transactions/details/';
 const feesURL = 'https://trustly.one/admin-console/transactions'
+
+const fingerprintBigURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint='
 
 
 function extractDataFromPage() {
@@ -21,6 +27,7 @@ function extractDataFromPage() {
         }
         return null;
     }).filter(item => item !== null); // Filter out null values
+
     return data;
 }
 
@@ -201,6 +208,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Return true to indicate that we want to use sendResponse asynchronously
         return true;
     }
+    if (message.action === 'checkCollectionsByFingerPrint') {
+        let finalUrl
+        //const originalTabId = sender.tab.id;
+        const fingerPrint = message.fingerPrint; // Get the personId from the message
+        const urlWithFingerPrint = `${fingerprintBigURL}${fingerPrint}`; // Modify URL to include personId
+        //const urlWithCustomerID = `${collectionsCustomerURl}&customerId=${endUserID}`; // Modify URL to include personId
+
+        if(urlWithFingerPrint) {
+            finalUrl = urlWithFingerPrint
+            console.log(finalUrl)
+        } 
+
+        openTab(finalUrl, (tab) => {
+            const tabId = tab.id;
+            // Inject content script to extract data from the page
+            chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                func: extractDataFromPage
+            }, (results) => {
+                if (results && results[0] && results[0].result) {
+                    const extractedData = results[0].result;
+                    console.log('Extracted Data:', extractedData);
+                    // Send the extracted data back to the content script
+                    sendResponse({ tabId: tabId, extractedData: extractedData });
+                } else {
+                    console.error('Error extracting data');
+                    sendResponse({ tabId: tabId, extractedData: [] });
+                }
+                // Close the tab after extracting data and switch back to the original tab
+
+                //closeTab(tabId, originalTabId);
+
+            });
+        });
+
+        // Return true to indicate that we want to use sendResponse asynchronously
+        return true;
+    }
 
     if (message.action === 'extractMultiplePages') {
         const transactionIds = message.transactionIds; // Array of transaction IDs to process
@@ -310,4 +355,3 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
 });
-

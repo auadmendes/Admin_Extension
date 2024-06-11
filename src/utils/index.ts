@@ -8,6 +8,15 @@ type FieldObject = {
   id: number | null;
 };
 
+export type ColumnData = {
+  label: string;
+  inputType: string;
+  inputName: string;
+  inputId: string;
+  inputChecked: boolean;
+  book_mark: boolean;
+};
+
 interface Field {
     book_mark: boolean;
     divField: string;
@@ -65,7 +74,7 @@ interface Field {
           document.body.appendChild(link);
           link.click();
         } else {
-          console.log('Table body is null');
+          //console.log('Table body is null');
         }
       },
     });
@@ -155,43 +164,20 @@ interface Field {
   });
   }
 
-  export async function updateInputFieldsBookMark(updatedFields: { label: string, book_mark: boolean }[]): Promise<void> {
-    return new Promise((resolve, reject) => {
-        chrome.storage.local.get('fieldsData', function (result) {
-            if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError.message);
-                return;
-            }
 
-            const fieldsData = result.fieldsData || [];
-            
-            // Update the book_mark and index
-            const updatedData = fieldsData.map((item: FieldObject) => {
-                const updatedField = updatedFields.find(updated => updated.label === item.label);
-                if (updatedField) {
-                    const updatedItem = { ...item, book_mark: updatedField.book_mark };
-                    return updatedItem;
-                }
-                return item;
-            });
-
-            // Sort the data based on the book_mark
-            const sortedData = updatedData.sort((a: FieldObject, b: FieldObject) => {
-                if (a.book_mark && !b.book_mark) return -1;
-                if (!a.book_mark && b.book_mark) return 1;
-                return 0;
-            });
-
-            chrome.storage.local.set({ fieldsData: sortedData }, function () {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError.message);
-                } else {
-                    resolve();
-                }
-            });
-        });
+export async function getColumnsStored(): Promise<ColumnData[]> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get('columnsData', function (result) {
+      const columnsDataStored: ColumnData[] = result.columnsData;
+      if (columnsDataStored) {
+        resolve(columnsDataStored);
+      } else {
+        reject('No data found in storage');
+      }
     });
-  }
+  });
+}
+
 
   export async function deleteStoredData(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -383,7 +369,7 @@ interface Field {
     // ...
 
     // Log or use the extracted values as needed
-    console.log('Merchant Reference:', merchantReference);
+    //console.log('Merchant Reference:', merchantReference);
     // console.log('Transaction ID:', transactionId);
     // console.log('PP Transaction ID:', ppTransactionId);
     // ...
@@ -410,5 +396,48 @@ interface Field {
     };
 
     return extractedValues;
+}
+
+export async function updateInputFieldsBookMark(updatedFields: { label: string, book_mark: boolean }[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+      chrome.storage.local.get('fieldsData', function (result) {
+          if (chrome.runtime.lastError) {
+              reject(chrome.runtime.lastError.message);
+              return;
+          }
+
+          const fieldsData = result.fieldsData || [];
+          
+          // Update book_mark in fieldsData based on updatedFields
+          const updatedData = fieldsData.map((item: FieldObject) => {
+              const updatedField = updatedFields.find(updated => updated.label === item.label);
+              if (updatedField) {
+                  return { ...item, book_mark: updatedField.book_mark };
+              }
+              return item;
+          });
+
+          chrome.storage.local.set({ fieldsData: updatedData }, function () {
+              if (chrome.runtime.lastError) {
+                  reject(chrome.runtime.lastError.message);
+              } else {
+                  resolve();
+              }
+          });
+      });
+  });
+}
+
+
+export async function updateColumnsData(updatedFields: ColumnData[]): Promise<void> {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.set({ columnsData: updatedFields }, function () {
+      if (chrome.runtime.lastError) {
+        reject(chrome.runtime.lastError.message);
+      } else {
+        resolve();
+      }
+    });
+  });
 }
 

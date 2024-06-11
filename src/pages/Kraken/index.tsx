@@ -13,6 +13,7 @@ import { Toggle } from '../../components/Toggle';
 import { GrPrevious } from "react-icons/gr";
 import trustlyLogoImage from '../../assets/trustlyGreen.png';
 import { Spinner } from '../../components/Spinner';
+import { Columns } from "../../components/Columns";
 
 type FieldObject = {
   label: string;
@@ -135,6 +136,7 @@ export function Kraken({onClick}: KrakenPageProps) {
                 </div>
               </div>
 
+              <Columns />
         </div>
     )
 }

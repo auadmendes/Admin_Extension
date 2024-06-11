@@ -1,9 +1,10 @@
 async function groupActionOptions() { 
     const group = document.querySelector('.btn-group ul');
+    const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
 
     const poaIcon = chrome.runtime.getURL("images/document.png");
 
-        if(group) {
+        if (group && groupButton === 'Action') {
             
             const newOption = document.createElement('li');
 
@@ -25,12 +26,13 @@ async function groupActionOptions() {
 
 function createPOA() {
     const table = document.getElementById('sortabletable');
+    const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
 
-    if (table) {
+    if (table && groupButton === 'Action') {
         const selectedRows = Array.from(table.querySelectorAll('tbody tr input[type="checkbox"]:checked'));
 
         if (selectedRows.length === 0) {
-            showToast('No rows selected.');
+            toast('No rows selected.');
             return;
         }
 
@@ -73,7 +75,7 @@ function createPOA() {
             toast('Creating the POA')
 
         } else {
-            showToast('Failed to extract email from dropdown');
+            toast('Failed to extract email from dropdown');
         }
     }
 }

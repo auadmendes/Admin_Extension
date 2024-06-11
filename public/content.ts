@@ -128,6 +128,23 @@ let  fields  = []
         });
         });
     }
+    
+    // async function getColumnsStored() {
+    //     return new Promise((resolve, reject) => {
+    //     chrome.storage.local.get('columnsData', function (result) {
+    //         const columnsDataStored = result.fieldsData;
+    //         if (columnsDataStored) {
+
+    //             removeDivsUntilHr();
+
+    //             resolve(columnsDataStored);
+
+    //         } else {
+    //         reject('No data found in storage');
+    //         }
+    //     });
+    //     });
+    // }
 
 
    async function setFieldsToTheFormTransactions() {
@@ -399,6 +416,92 @@ let  fields  = []
         }
     }
 
+    async function getStoreColumnData() {
+        return new Promise((resolve, reject) => {
+        chrome.storage.local.get('columnsData', function (result) {
+            const storedColumnData = result.columnsData;
+            if (storedColumnData) {
+                //console.log('inputs', storedColumnData)
+                updateCheckboxInputs();
+                resolve(storedColumnData);
+
+            } else {
+                mapColumns();
+                reject('No data found in storage');
+            }
+        });
+        });
+    }
+
+    async function mapColumns() {
+        const columns = document.querySelectorAll('#hidden-columns label');
+        const columnsData = [];
+    
+        columns.forEach(label => {
+            const input = label.querySelector('input');
+            columnsData.push({
+                label: label.textContent.trim(),
+                inputType: input.type,
+                inputName: input.name,
+                inputId: input.id,
+                inputChecked: input.checked,
+                book_mark: false // Initial value
+            });
+        });
+    
+        // Check if columnsData already exists in Chrome storage
+        chrome.storage.local.get('columnsData', function(result) {
+            if (result.columnsData && result.columnsData.length > 0) {
+                console.log('Columns data already exists:', result.columnsData);
+            } else {
+                // Save the new data in Chrome storage
+                chrome.storage.local.set({ columnsData }, function() {
+                    console.log('Columns data saved:', columnsData);
+                });
+            }
+        });
+    }
+
+    async function updateCheckboxInputs() {
+        chrome.storage.local.get('columnsData', function(result) {
+            const storedColumnsData = result.columnsData;
+    
+            if (storedColumnsData && Array.isArray(storedColumnsData)) {
+                const columns = document.querySelectorAll('#hidden-columns label');
+    
+                columns.forEach(label => {
+                    const input = label.querySelector('input');
+                    const columnId = input.id;
+    
+                    const storedColumn = storedColumnsData.find(column => column.inputId === columnId);
+    
+                    if (storedColumn && storedColumn.inputChecked) {
+                        input.dispatchEvent(new Event('click')); // Simulate a click event on the input element
+                    }
+                });
+            } else {
+                console.log('No columns data found in storage.');
+            }
+        });
+    }
+    
+
+      getStoreColumnData();
+    //mapColumns();
+    //updateCheckboxInputs();
+
+    //  async function deleteColumnsData() {
+    //     return new Promise((resolve, reject) => {
+    //       chrome.storage.local.remove('columnsData', function () {
+    //         if (chrome.runtime.lastError) {
+    //           reject(chrome.runtime.lastError.message);
+    //         } 
+    //       });
+    //     });
+    //   }
+    
+      //deleteColumnsData();
+
     // //@ts-ignore
     // function openTabInServiceWorker(personId) {
     //     // Send a message to the service worker to open a tab with the personId
@@ -463,6 +566,18 @@ let  fields  = []
     //     });
     // }
 
+    // function changeToolbarColor() {
+    //     const style = document.createElement('style');
+    //     style.textContent = `
+    //       body.admin-console .toolbar {
+    //         background-color: rgb(182, 149, 169) !important;
+    //       }
+    //     `;
+    //     document.head.appendChild(style);
+    //   }
+      
+    //   // Call the function to apply the style when needed
+    //   changeToolbarColor();
+
     initiateFields();
 
-    

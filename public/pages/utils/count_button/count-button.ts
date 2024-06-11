@@ -52,6 +52,12 @@ async function changeButtonTransactionsPage() {
   }
 
 async function someAllAmountsOnThePage() { 
+    const url = new URL(window.location.href)
+ 
+    if(url.href.startsWith('https://trustly.one/admin-console/transactions/customers')){
+        //toast('Aqui' + url.origin)
+        return;
+    }
     const iconCheck = chrome.runtime.getURL("images/icon_check.png");
 
     const rows = document.querySelectorAll('#sortabletable tbody tr');

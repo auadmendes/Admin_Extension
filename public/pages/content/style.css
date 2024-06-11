@@ -76,3 +76,19 @@
     align-self: flex-start; 
     margin-top: -3px;
 }
+
+:root {
+    --toolbar-color-default: #207ab3; /* Default toolbar color */
+    --toolbar-color-green: #4caf50; /* Color for specific URL */
+  }
+  
+  body {
+    /* Example of setting the toolbar color */
+    --toolbar-color: var(--toolbar-color-default);
+  }
+  
+  /* Example of targeting the toolbar element */
+  /* You may need to adjust this selector based on your extension's structure */
+  #toolbar {
+    background-color: var(--toolbar-color);
+  }
