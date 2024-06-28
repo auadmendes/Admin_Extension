@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-undef */
 async function createGroupOptionCheckCollections() { 
     const group = document.querySelector('.btn-group ul');
     const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
@@ -39,11 +41,9 @@ async function createGroupOptionCheckCollections() {
                     //@ts-expect-error
                     toast('Using Person ID' + personId)
                 } else if (fingerprint) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-expect-error
-                    toast('Using Fingerprint' + fingerprint);
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-expect-error
+  
+                    toast('Using Fingerprint:  ' + fingerprint);
+                    
                     openTabInServiceWorkerCollectionsFingerPrint(fingerprint);
                 } else {
                     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -187,4 +187,6 @@ function checkCheckboxesByTransactionId(transactionId) {
     copySelectedMerchantReferenceByCollectionsToClipboard();
 }
 
-createGroupOptionCheckCollections();
+
+
+//createGroupOptionCheckCollections();

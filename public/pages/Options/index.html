@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -70,4 +70,184 @@
 <script src="options.js">
 
 </script>
+</html> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Console Extension</title>
+    <link rel="stylesheet" href="options.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" 
+    rel="stylesheet">
+    <style>
+        body {
+            background-color: rgb(31, 41, 55);
+            color: #fff;
+            font-family: 'Roboto', sans-serif;
+        }
+        h3, h4 {
+            color: #23f23c;
+        }
+        p, article {
+            font-size: small;
+        }
+        .container {
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            margin: 0 auto;
+        }
+        .titleContainer {
+            margin-bottom: 20px;
+        }
+        .titleContainer h3 {
+            margin-bottom: 5px;
+        }
+        .titleContainer p {
+            margin-top: -10px;
+        }
+        .section {
+            margin-bottom: 20px;
+        }
+        .section h4 {
+            margin-bottom: 10px;
+        }
+        .code {
+            background-color: #444;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        .image {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+        .button {
+            background-color: #23f23c;
+            color: #000;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            display: inline-block;
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="titleContainer">
+            <h1>Admin Console Extension</h1>
+            <p>A guide to use the extension</p>
+        </div>
+        
+        <div class="section">
+            <h4>The purpose of this project</h4>
+            <p>The purpose of this project is to help in the agent's daily work. With custom views and fields, in addition to reducing clicks and searches, providing efficient ways to copy and access information.</p>
+            <p>Don’t want to read? <a href="#">Watch it Video tutorial</a></p>
+        </div>
+        
+        <div class="section">
+            <h4>Current Status</h4>
+            <p>The admin extension is currently in test mode.</p>
+            <a href="#" class="button">Download the Last Version V 3.6.1</a>
+        </div>
+        
+        <div class="section">
+            <h4>Downloading the extension</h4>
+            <p>This extension will work locally only, to respect the Trustly security. Having access to the extension folder you must download the dist folder.</p>
+            <div class="code">dist</div>
+            <p>Save it in a local you will not delete it by accident.</p>
+        </div>
+        
+        <div class="section">
+            <h4>How to install</h4>
+            <p>Open your browser go to the toolbar as you can see below click on the icon for extensions and then Manage extensions.</p>
+            <img src="images/extensions_toolbar.png" alt="Toolbar" class="image">
+            <p>Or you can click on the 3 dots, click on extensions, and then Manage extensions</p>
+            <img src="images/three_dots_extensions.png" alt="Three dots menu" class="image">
+            <p>Within the page opened you must turn on the developer mode.</p>
+            <img src="images/developer_mode.png" alt="Developer mode" class="image">
+            <p>Clicking on that will enable you to load your extension. Click on the Load unpacked and select your extension.</p>
+            <p>Select the Dist folder you downloaded from the link provided and click Select.</p>
+            <p>Enable your extension by clicking on the Switch button as you can see below.</p>
+            <p>Go to your Admin Console and refresh the page.</p>
+        </div>
+        
+        <div class="section">
+            <h4>How to use the extension</h4>
+            <p>Click on the Extension button and pin the extension.</p>
+            <img src="images/pin_extension.png" alt="Pin extension" class="image">
+            <p>After refreshing your Admin Console with the Extension enabled your field view is the same.</p>
+            <p>To choose what fields you want to display click on the Extension’s icon, and click on the right arrow button.</p>
+            <img src="images/extension_icon.png" alt="Extension icon" class="image">
+            <p>The Fields have the same name as you can see in Admin Console, click to select or unselect them, they will appear in the order you choose them.</p>
+            <img src="images/select_fields.png" alt="Select fields" class="image">
+        </div>
+        
+        <div class="section">
+            <h4>The anatomy of the transactions page</h4>
+            <ul>
+                <li>Improved aspect.</li>
+                <li>The logo was changed to Trustly’s one.</li>
+                <li>Fields can be enabled/disabled on the page’s header.</li>
+                <li>The buttons for Filter and Columns have a new style.</li>
+                <li>A box with a checkbox count and a span to display the sum of the amount was added.</li>
+                <li>The button reset received a new style.</li>
+                <li>On the table, the second column Trx ID was enabled to receive a single click and open a new page.</li>
+                <li>The Merchant Reference received a link option, we can click on that to open the transaction.</li>
+                <li>The Action button received 6 new options.</li>
+            </ul>
+        </div>
+        
+        <div class="section">
+            <h4>Fields</h4>
+            <p>When it is your first time using the Admin Extension your fields are the same as you have been using all this time, if you are comfortable with that you don't need to change it. If you want to, you must map that by clicking on Map Fields at the bottom of the extension pop-up.</p>
+            <p>It will delete your field view and leave it blank. You must now select what you would like to be displayed.</p>
+        </div>
+        
+        <div class="section">
+            <h4>Dark Mode</h4>
+            <img src="images/dark_mode.png" alt="Dark Mode" class="image">
+        </div>
+        
+        <div class="section">
+            <h4>Total count</h4>
+            <p>By selecting any transaction with the checkbox you will see how many transactions checked you have and the sum of the amounts.</p>
+        </div>
+        
+        <div class="section">
+            <h4>Action button</h4>
+            <p>By selecting transactions you can click on the Action button and click on the Selected PTX option to copy its PTX, it helps to create Proof of authorization.</p>
+            <p>You can do the same with the Merchant Reference option or copy all the PTXs or all the Merchant references by clicking on All PTXs and All Merchant Ref.</p>
+            <p>Example of the copy:</p>
+            <div class="code">
+                <p>PTX</p>
+                <p>ptx-y3Vql4Wj_K3aIYqaEJOyni7R,</p>
+                <p>ptx-bklm6HEF0GCQPGz4UfXE4vBJ,</p>
+                <p>ptx-5rCEQ83ZGggqMzNzODoLAhvL,</p>
+                <p>ptx-6NiPEbEwnrMdSzSUBA1ulvmx</p>
+                <p>Merchant Reference</p>
+                <p>7734669425  -  SB:pYai104wTvu5_ANSBM6--A  -  USD  10.00</p>
+                <p> -  SB:Pf4hgQCcT-KTrf6JYOGeVw  -  USD  0.00</p>
+                <p>7734663994  -  SB:_e_l-Y8XRnCQhEvd3XGeBQ  -  USD  10.00</p>
+                <p>7734662581  -  SB:YvLt2VPgQ4S__M2FnCg0mg  -  USD  10.00</p>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h4>Generating POA</h4>
+            <p>For the Back office team, we do POA (Proof of authorization) every day, multiple times. To generate the POA from the transactions page select all the transactions you want to add to the POA, and click on the Action button, after that click on the Generate POA option.</p>
+            <p>This option will create a new tab, copy all the information, and place them into the POA page. You must click on Add Payments at the bottom of the page.</p>
+        </div>
+        
+        <div class="section">
+            <h4>Conclusion</h4>
+            <p>From all the improvements made, this extension helps a lot in daily work. Being more productive and avoiding unnecessary clicks is the main purpose of this project.</p>
+            <p>Hope you enjoy it, and please let me know if you have any questions or suggestions.</p>
+        </div>
+    </div>
+</body>
 </html>

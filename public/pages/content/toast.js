@@ -5,6 +5,12 @@ function toast(message) {
     toast.classList.add('toast');
     toast.textContent = message;
 
+    toast.style.position = 'fixed';
+    toast.style.top = '100px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = '#0C0C0D';
+
     
     document.body.appendChild(toast);
 

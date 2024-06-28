@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function createPOAByServiceWorker(URL) {
     
@@ -9,7 +10,7 @@ function createPOAByServiceWorker(URL) {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 function openTabInServiceWorker(personId) {
     // Send a message to the service worker to open a tab with the personId
-    chrome.runtime.sendMessage({ action: 'openTab', personId: personId }, (response) => {
+    chrome.runtime.sendMessage({ action: 'checkCollectionsByPersonId', personId: personId }, (response) => {
         const tabId = response.tabId;
         const data = response.extractedData; // Extracted data from the service worker
         console.log('New tab opened with ID:', tabId);
@@ -19,7 +20,7 @@ function openTabInServiceWorker(personId) {
         data.forEach((item) => {
             checkCheckboxesByTransactionId(item.transactionId)
             
-            console.log('Transaction ID:', item.transactionId);
+            //console.log('Transaction ID:', item.transactionId);
         });
     });
 }
@@ -34,7 +35,7 @@ function openTabInServiceWorkerCollectionsFingerPrint(fingerPrint) {
         data.forEach((item) => {
             checkCheckboxesByTransactionId(item.transactionId)
             
-            console.log('Transaction ID:', item.transactionId);
+            //console.log('Transaction ID:', item.transactionId);
         });
     });
 }

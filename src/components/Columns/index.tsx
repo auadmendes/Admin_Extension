@@ -9,11 +9,10 @@ export function Columns() {
             try {
                 const storedData = await getColumnsStored();
                 if (storedData && Array.isArray(storedData)) {
-                    // Sort fields alphabetically by label
                     const sortedFields = storedData.slice().sort((a, b) => a.label.localeCompare(b.label));
                     setFields(sortedFields);
                 } else {
-                    setFields([]); // Set empty array if no data or incorrect data type
+                    setFields([]);
                 }
             } catch (error) {
                 console.error('Error fetching stored data:', error);
@@ -30,19 +29,17 @@ export function Columns() {
         setFields(updatedFields);
 
         try {
-            await updateColumnsData(updatedFields); // Save updated fields to storage
-            // Reload the page to reflect the changes
-            //console.log('0000000000000000 ---', updatedFields)
-            //window.location.reload();
+            await updateColumnsData(updatedFields); 
+            location.reload();
         } catch (error) {
             console.error('Error updating columns data:', error);
         }
     };
 
     return (
-        <div className='mt-14 dark:text-white text-gray-600'>
+        <div className='mt-4 dark:text-white text-gray-600'>
             <div>
-                <span className='font-semibold text-2xl'>Select columns to fix</span>
+                <span className='font-semibold text-xl text-trustly'>Select columns to fix</span>
             </div>
             <div className='mt-4'>
                 {fields.map(field => (

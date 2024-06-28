@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-undef */
 async function groupActionOptions() { 
     const group = document.querySelector('.btn-group ul');
     const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
@@ -43,7 +45,7 @@ function createPOA() {
             const row = checkbox.closest('tr');
             const fiTrxId = row?.querySelector('.viewFiTrxId-col')?.textContent;
             if (fiTrxId) {
-                //@ts-ignore
+                
                 selectedValues.push(fiTrxId.trim());
             }
         });
@@ -51,7 +53,7 @@ function createPOA() {
         // Check if any selected row does not have a ptx value
         const missingPtxValues = selectedRows.some(row => {
             const fiTrxId = row.closest('tr')?.querySelector('.viewFiTrxId-col')?.textContent;
-            //@ts-ignore
+            
             return !selectedValues.includes(fiTrxId.trim());
         });
 
@@ -72,7 +74,7 @@ function createPOA() {
             const url = `https://trustly.one/admin-console/disputes?emails=${encodeURIComponent(email)}&flasher.message=The+execution+of+the+Dispute+Report+was+triggered.&ptxs=${selectedValuesString}`;
             //openTabInServiceWorkerForPOA(url);
             createPOAByServiceWorker(url);
-            toast('Creating the POA')
+            toast('Creating POA from Action Button')
 
         } else {
             toast('Failed to extract email from dropdown');
@@ -80,4 +82,3 @@ function createPOA() {
     }
 }
 
-groupActionOptions();

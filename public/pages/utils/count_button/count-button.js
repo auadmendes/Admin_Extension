@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 async function changeButtonTransactionsPage() {
     const iconFilter = chrome.runtime.getURL("images/icon_filters.png");
     const iconColumns = chrome.runtime.getURL("images/icon_check.png");
@@ -149,5 +150,12 @@ function updateTotalAmount(amount, checkedCount) {
     }
 }
 
+function checkUrlForSum() {
+    const urlPath = window.location.pathname;
+    if (urlPath.startsWith('/admin-console/transactions')) {
+        someAllAmountsOnThePage();
+    }
+}
+checkUrlForSum()
 changeButtonTransactionsPage();
-someAllAmountsOnThePage();
+//someAllAmountsOnThePage();

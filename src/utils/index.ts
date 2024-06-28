@@ -430,6 +430,7 @@ export async function updateInputFieldsBookMark(updatedFields: { label: string, 
 
 
 export async function updateColumnsData(updatedFields: ColumnData[]): Promise<void> {
+  
   return new Promise((resolve, reject) => {
     chrome.storage.local.set({ columnsData: updatedFields }, function () {
       if (chrome.runtime.lastError) {

@@ -396,7 +396,6 @@ let  fields  = []
             }
         }
     }
-    
 
     async function removeDivsUntilHr() {
         const form = document.querySelector('#frmTransactions');
@@ -486,7 +485,7 @@ let  fields  = []
     }
     
 
-      getStoreColumnData();
+    getStoreColumnData();
     //mapColumns();
     //updateCheckboxInputs();
 

@@ -1,5 +1,7 @@
 /* eslint-disable no-undef */
-
+importScripts('checkCollectionsByPersonId.js');
+importScripts('checkCollectionsByButtonActionsFingerprint.js');
+importScripts('createPOA.js');
 
 
 const collectionsURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=';
@@ -8,7 +10,7 @@ const collectionsCustomerURl = 'https://trustly.one/admin-console/collections/in
 const transactionsURL = 'https://trustly.one/admin-console/transactions/details/';
 const feesURL = 'https://trustly.one/admin-console/transactions'
 
-const fingerprintBigURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint='
+//const fingerprintBigURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint='
 
 
 function extractDataFromPage() {
@@ -128,7 +130,7 @@ function openPOATab(url, callback) {
 
         // Close the tab after a delay (adjust the delay as needed)
         setTimeout(() => {
-            closeTab(tab.id, callback);
+            //closeTab(tab.id, callback);
         }, 1000); // 1000 milliseconds delay (1 second) before closing the tab
     });
 }
@@ -165,86 +167,25 @@ function submitFormWithoutTab(url, formData) {
       console.error('There was a problem with the fetch operation:', error);
     });
   }
-  
+
+
+
+
+
+checkCollectionsByActionsFingerprint();
+checkCollectionsByActionsPersonId();
+createPOAByTable();
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     
-    if (message.action === 'openTab') {
-        let finalUrl
-        const originalTabId = sender.tab.id;
-        const endUserID = message.personId; // Get the personId from the message
-        const urlWithPersonId = `${collectionsURL}&personId=${endUserID}`; // Modify URL to include personId
-        const urlWithCustomerID = `${collectionsCustomerURl}&customerId=${endUserID}`; // Modify URL to include personId
-
-        if(urlWithPersonId) {
-            finalUrl = urlWithPersonId
-        } else if (urlWithCustomerID) {
-            finalUrl = urlWithCustomerID
-        }else {
-            return
-        }
-
-        openTab(finalUrl, (tab) => {
-            const tabId = tab.id;
-            // Inject content script to extract data from the page
-            chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                func: extractDataFromPage
-            }, (results) => {
-                if (results && results[0] && results[0].result) {
-                    const extractedData = results[0].result;
-                    console.log('Extracted Data:', extractedData);
-                    // Send the extracted data back to the content script
-                    sendResponse({ tabId: tabId, extractedData: extractedData });
-                } else {
-                    console.error('Error extracting data');
-                    sendResponse({ tabId: tabId, extractedData: [] });
-                }
-                // Close the tab after extracting data and switch back to the original tab
-                closeTab(tabId, originalTabId);
-            });
+    if (message.action === 'closeTab' && sender.tab) {
+        chrome.tabs.remove(sender.tab.id, () => {
+            if (chrome.runtime.lastError) {
+                console.error(chrome.runtime.lastError);
+            } else {
+                console.log(`Tab ${sender.tab.id} closed`);
+            }
         });
-
-        // Return true to indicate that we want to use sendResponse asynchronously
-        return true;
-    }
-    if (message.action === 'checkCollectionsByFingerPrint') {
-        let finalUrl
-        //const originalTabId = sender.tab.id;
-        const fingerPrint = message.fingerPrint; // Get the personId from the message
-        const urlWithFingerPrint = `${fingerprintBigURL}${fingerPrint}`; // Modify URL to include personId
-        //const urlWithCustomerID = `${collectionsCustomerURl}&customerId=${endUserID}`; // Modify URL to include personId
-
-        if(urlWithFingerPrint) {
-            finalUrl = urlWithFingerPrint
-            console.log(finalUrl)
-        } 
-
-        openTab(finalUrl, (tab) => {
-            const tabId = tab.id;
-            // Inject content script to extract data from the page
-            chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                func: extractDataFromPage
-            }, (results) => {
-                if (results && results[0] && results[0].result) {
-                    const extractedData = results[0].result;
-                    console.log('Extracted Data:', extractedData);
-                    // Send the extracted data back to the content script
-                    sendResponse({ tabId: tabId, extractedData: extractedData });
-                } else {
-                    console.error('Error extracting data');
-                    sendResponse({ tabId: tabId, extractedData: [] });
-                }
-                // Close the tab after extracting data and switch back to the original tab
-
-                //closeTab(tabId, originalTabId);
-
-            });
-        });
-
-        // Return true to indicate that we want to use sendResponse asynchronously
-        return true;
     }
 
     if (message.action === 'extractMultiplePages') {
@@ -258,12 +199,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
     
     // this is the message to call to generate the POA by PTXs
-    if (message.action === 'createPOAByTable') {
-        const url = message.urlID;
-        openPOATab(url);
+    // if (message.action === 'createPOAByTable') {
+    //     const url = message.urlID;
+    //     openPOATabForPOA(url);
 
-        return true; // Indicates that we want to use sendResponse asynchronously
-    }
+    //     return true; // Indicates that we want to use sendResponse asynchronously
+    // }
 
     if (message.action === 'checkCollectionsByTransaction') {
         let finalUrl
@@ -348,10 +289,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
 
-    if (message.action === 'createPOAByTableSubmit') {
-        const url = message.urlID;
-        submitFormWithoutTab(url, message.formData);
-        return true; // Indicates that we want to use sendResponse asynchronously
-    }
+    // if (message.action === 'createPOAByTableSubmit') {
+    //     const url = message.urlID;
+    //     submitFormWithoutTab(url, message.formData);
+    //     return true; // Indicates that we want to use sendResponse asynchronously
+    // }
 
 });
+
+

@@ -1,7 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "3.5.0",
+  "version": "3.7.0",
+  "description": "The admin extension is currently in test mode",
   "icons": {
     "16": "images/TGreen.png",
     "32": "images/TGreen.png",
@@ -40,16 +41,20 @@
       "css": ["pages/content/style.css"],
       "js": [
         "content.ts",
-        "pages/content/index.ts",
-        "pages/content/toast.ts",
-        "pages/content/payment.ts",
-        "pages/content/changeLogo.ts",
-        "pages/content/groupAction.ts",
-        "pages/content/buttonTransactionPage.ts",
-        "pages/utils/action_button/create-poa.ts",
-        "pages/utils/action_button/check-collections.ts",
-        "pages/utils/service_worker_functions/index.ts",
-        "pages/utils/count_button/count-button.ts"
+        "pages/content/index.js",
+        "pages/content/toast.js",
+        "pages/content/transactionStatusUtils.js",
+        "pages/content/payment.js",
+        "pages/content/transaction.js",
+        "pages/content/fITransaction.js",
+        "pages/content/merchant_info.js",
+        "pages/content/customerInfo.js",
+        "pages/content/changeLogo.js",
+        "pages/content/tableEvents.js",
+        "pages/utils/action_button/create-poa.js",
+        "pages/utils/action_button/check-collections.js",
+        "pages/utils/service_worker_functions/index.js",
+        "pages/utils/count_button/count-button.js"
       ]
     }
   ],
@@ -69,7 +74,9 @@
         "images/document.png",
         "images/collections_price.png",
         "images/arrow_down.png",
-        "images/loadingIcon.gif"
+        "images/loadingIcon.gif",
+        "images/idea.png",
+        "images/infoIcon.png"
       ],
       "matches": ["<all_urls>"]
     }, 
@@ -80,36 +87,5 @@
     }
   ],
   "options_page": "pages/Options/index.html"
- /*  "theme" : {
-    "properties": {
-      "ntp_background_alignment": "bottom",
-      "ntp_background_norepeat": "norepeat"
-    },
-    "colors": {
-      "toolbar": [182, 149, 169]
-    }
-  }
- "theme": {
-    "images" : {
-      "theme_frame" : "images/theme_frame_camo.png",
-      "theme_frame_overlay" : "images/theme_frame_stripe.png",
-      "theme_toolbar" : "images/theme_toolbar_camo.png",
-      "theme_ntp_background" : "images/theme_ntp_background_norepeat.png",
-      "theme_ntp_attribution" : "images/attribution.png"
-    },
-    "colors" : {
-      "frame" : [71, 105, 91],
-      "toolbar" : [207, 221, 192],
-      "ntp_text" : [20, 40, 0],
-      "ntp_link" : [36, 70, 0],
-      "ntp_section" : [207, 221, 192],
-      "button_background" : [255, 255, 255]
-    },
-    "tints" : {
-      "buttons" : [0.33, 0.5, 0.47]
-    },
-    "properties" : {
-      "ntp_background_alignment" : "bottom"
-    }
-  }*/
+ 
 }

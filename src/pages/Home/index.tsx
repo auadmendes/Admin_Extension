@@ -11,7 +11,7 @@ import {
   downloadKrakenResult, 
 } from '../../utils';
 
-import { Kraken } from '../Kraken';
+import { ConfigPage } from '../ConfigPage';
 
 
 
@@ -19,7 +19,7 @@ import { Kraken } from '../Kraken';
 export function Home() {
   
   const [pageURL, setPageUrl] = useState('');
-  const [isKraken, setIsKraken] = useState(false);
+  const [isConfigPage, setIsConfigPage] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   
 
@@ -50,8 +50,8 @@ export function Home() {
     });
   }
 
-  async function handleGetKrakenPage() {
-    setIsKraken(!isKraken);
+  async function handleConfigPage() {
+    setIsConfigPage(!isConfigPage);
   }
 
   async function test() {
@@ -125,7 +125,7 @@ export function Home() {
       <div className="min-w-80 h-full w-auto bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 
       dark:border-gray-700 p-6 overflow-y-scroll no-scrollbar">
 
-        {isKraken === true ? (<Kraken onClick={handleGetKrakenPage} />):(
+        {isConfigPage === true ? (<ConfigPage onClick={handleConfigPage} />):(
 
         <div className="w-full h-full overflow-y-hidden no-scrollbar">
           <div className='w-full flex justify-between'>
@@ -135,7 +135,7 @@ export function Home() {
             
             <button 
             className='p-2 border-0'
-            onClick={handleGetKrakenPage}
+            onClick={handleConfigPage}
             type='button'>
               <GrNext className='dark:text-white text-gray-600'/>
             </button>
@@ -191,6 +191,3 @@ export function Home() {
       </div>
   );
 }
-
-
-// person id vs url
