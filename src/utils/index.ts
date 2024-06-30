@@ -1,7 +1,9 @@
+/* eslint-disable prefer-const */
 //import { getStoredData } from '../../public/content.ts'; 
 
 
 type FieldObject = {
+  markedAt: number | null;  // Use 'number' for timestamp, and allow 'null' for unmarked items
   label: string;
   book_mark: boolean;
   divField: string; 
@@ -82,74 +84,77 @@ interface Field {
   
   export async function getInputFieldsVisible() {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-
+  
     return new Promise((resolve, reject) => {
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id! },
-            func: async function() {
-                const formData = document.querySelector('#frmTransactions');
-                const fieldsData: FieldObject[] = [];
-
-                if (formData) {
-                    const formDataArray = Array.from(formData.querySelectorAll('.col-sm-3'));
-
-                    formDataArray.forEach((div, index) => {
-                        // Check if the parent div has ID 'hidden-columns'
-                        if (!div.closest('#hidden-columns')) {
-                            const label = div.querySelector('label')?.textContent?.trim();
-                            const divFieldContent = div.innerHTML; // Extract HTML content
-                      
-                            let book_mark = false; // Default value
-                      
-                            switch (label) {
-                                case 'Transaction Id:':
-                                case 'FI Transaction Id:':
-                                case 'Merchant Reference:':
-                                case 'Original Transaction Id:':
-                                case 'Merchant:':
-                                case 'FI:':
-                                case 'Payment Id:':
-                                case 'PP Trx Status Code:':
-                                case 'Payment Type:':
-                                case 'Transaction Type:':
-                                case 'Transaction Status:':
-                                case 'Authorization Status:':
-                                    book_mark = false;
-                                    break;
-                                default:
-                                    break;
-                            }
-                      
-                            const fieldObject: FieldObject = {
-                                id: index, // ID based on index to represent sequence
-                                label: label || '', // Use empty string if label is null or undefined
-                                book_mark,
-                                divField: divFieldContent, // Assign HTML content as a string
-                            };
-                      
-                            fieldsData.push(fieldObject);
-                        }
-                    });
-
-                    // Check if there is existing data in chrome.storage.local
-                    chrome.storage.local.get(['fieldsData'], function(result) {
-                        const existingFieldsData = result.fieldsData;
-                        if (existingFieldsData) {
-                            alert('Fields data already exists in storage!');
-                        } else {
-                            // Save fieldsData to async storage if no existing data
-                            chrome.storage.local.set({ fieldsData }, function() {
-                                resolve(fieldsData);
-                            });
-                        }
-                    });
-                } else {
-                    reject('Form data not found');
+      chrome.scripting.executeScript({
+        target: { tabId: tab.id! },
+        func: async function() {
+          const formData = document.querySelector('#frmTransactions');
+          const fieldsData: FieldObject[] = [];
+  
+          if (formData) {
+            const formDataArray = Array.from(formData.querySelectorAll('.col-sm-3'));
+  
+            formDataArray.forEach((div, index) => {
+              // Check if the parent div has ID 'hidden-columns'
+              if (!div.closest('#hidden-columns')) {
+                const label = div.querySelector('label')?.textContent?.trim();
+                const divFieldContent = div.innerHTML; // Extract HTML content
+  
+                let book_mark = false; // Default value
+                let markedAt = null; // Initialize markedAt as null
+  
+                switch (label) {
+                  case 'Transaction Id:':
+                  case 'FI Transaction Id:':
+                  case 'Merchant Reference:':
+                  case 'Original Transaction Id:':
+                  case 'Merchant:':
+                  case 'FI:':
+                  case 'Payment Id:':
+                  case 'PP Trx Status Code:':
+                  case 'Payment Type:':
+                  case 'Transaction Type:':
+                  case 'Transaction Status:':
+                  case 'Authorization Status:':
+                    book_mark = false;
+                    break;
+                  default:
+                    break;
                 }
-            }
-        });
+  
+                const fieldObject: FieldObject = {
+                  id: index, // ID based on index to represent sequence
+                  label: label || '', // Use empty string if label is null or undefined
+                  book_mark,
+                  divField: divFieldContent, // Assign HTML content as a string
+                  markedAt // Include markedAt property
+                };
+  
+                fieldsData.push(fieldObject);
+              }
+            });
+  
+            // Check if there is existing data in chrome.storage.local
+            chrome.storage.local.get(['fieldsData'], function(result) {
+              const existingFieldsData = result.fieldsData;
+              if (existingFieldsData) {
+                alert('Fields data already exists in storage!');
+              } else {
+                // Save fieldsData to async storage if no existing data
+                chrome.storage.local.set({ fieldsData }, function() {
+                  resolve(fieldsData);
+                });
+              }
+            });
+          } else {
+            reject('Form data not found');
+          }
+        }
+      });
     });
   }
+  
   
   export async function getStoredData() {
   return new Promise((resolve, reject) => {
@@ -407,12 +412,17 @@ export async function updateInputFieldsBookMark(updatedFields: { label: string, 
           }
 
           const fieldsData = result.fieldsData || [];
-          
+          const currentTime = new Date().getTime();
+
           // Update book_mark in fieldsData based on updatedFields
           const updatedData = fieldsData.map((item: FieldObject) => {
               const updatedField = updatedFields.find(updated => updated.label === item.label);
               if (updatedField) {
-                  return { ...item, book_mark: updatedField.book_mark };
+                  return {
+                      ...item,
+                      book_mark: updatedField.book_mark,
+                      markedAt: updatedField.book_mark ? currentTime : item.markedAt // Keep the original timestamp if unmarking
+                  };
               }
               return item;
           });
@@ -427,6 +437,7 @@ export async function updateInputFieldsBookMark(updatedFields: { label: string, 
       });
   });
 }
+
 
 
 export async function updateColumnsData(updatedFields: ColumnData[]): Promise<void> {

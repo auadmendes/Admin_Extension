@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "3.7.0",
+  "version": "3.7.3",
   "description": "The admin extension is currently in test mode",
   "icons": {
     "16": "images/TGreen.png",
@@ -40,7 +40,7 @@
       "match_about_blank": true,
       "css": ["pages/content/style.css"],
       "js": [
-        "content.ts",
+        "content.js",
         "pages/content/index.js",
         "pages/content/toast.js",
         "pages/content/transactionStatusUtils.js",

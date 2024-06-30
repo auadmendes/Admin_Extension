@@ -5,12 +5,10 @@ importScripts('createPOA.js');
 
 
 const collectionsURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=';
-//const urlFingerprint = 'https://trustly.one/admin-console/collections/index/?fingerprint=';
+
 const collectionsCustomerURl = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId='
 const transactionsURL = 'https://trustly.one/admin-console/transactions/details/';
 const feesURL = 'https://trustly.one/admin-console/transactions'
-
-//const fingerprintBigURL = 'https://trustly.one/admin-console/collections/index/?originalTransactionId=&transactionId=&personId=&customerId=&customerName=&merchant=&createdAt=&statusCode=&email=&fingerprint='
 
 
 function extractDataFromPage() {
@@ -57,11 +55,6 @@ function extractTransactionData() {
     return personID;
 }
 
-
-// function updateTabURL(tabId, url, callback) {
-//     chrome.tabs.update(tabId, { url }, callback);
-// }
-
 function extractDataFromMultiplePages(transactionIds, callback) {
     let results = [];
     let currentIndex = 0;
@@ -97,7 +90,6 @@ function extractDataFromMultiplePages(transactionIds, callback) {
     processNextTransaction();
 }
 
-
 function openTab(url, callback) {
     chrome.tabs.create({ url, active: false }, (tab) => {
         // Execute content script after tab is created and URL is updated
@@ -118,23 +110,6 @@ function openTab(url, callback) {
     });
 }
 
-function openPOATab(url, callback) {
-    chrome.tabs.create({ url, active: false }, (tab) => {
-        // Inject JavaScript code to submit the page
-        chrome.scripting.executeScript({
-            target: { tabId: tab.id },
-            func: () => {
-                document.querySelector('form').submit();
-            }
-        });
-
-        // Close the tab after a delay (adjust the delay as needed)
-        setTimeout(() => {
-            //closeTab(tab.id, callback);
-        }, 1000); // 1000 milliseconds delay (1 second) before closing the tab
-    });
-}
-
 function closeTab(tabId, originalTabId) {
     chrome.tabs.remove(tabId, () => {
         if (originalTabId !== undefined) {
@@ -142,34 +117,6 @@ function closeTab(tabId, originalTabId) {
         }
     });
 }
-
-function submitFormWithoutTab(url, formData) {
-    fetch(url, {
-      method: 'POST',
-      body: formData
-    })
-    .then(response => {
-      console.log('Response status:', response.status);
-      console.log('Response status text:', response.statusText);
-      console.log('Response headers:', Array.from(response.headers.entries()));
-  
-      if (!response.ok) {
-        return response.text().then(text => {
-          throw new Error(`Network response was not ok: ${response.status} ${response.statusText}: ${text}`);
-        });
-      }
-      return response.text();
-    })
-    .then(data => {
-      console.log('Form submitted successfully:', data);
-    })
-    .catch(error => {
-      console.error('There was a problem with the fetch operation:', error);
-    });
-  }
-
-
-
 
 
 checkCollectionsByActionsFingerprint();
@@ -198,13 +145,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return true;
     }
     
-    // this is the message to call to generate the POA by PTXs
-    // if (message.action === 'createPOAByTable') {
-    //     const url = message.urlID;
-    //     openPOATabForPOA(url);
-
-    //     return true; // Indicates that we want to use sendResponse asynchronously
-    // }
 
     if (message.action === 'checkCollectionsByTransaction') {
         let finalUrl
@@ -288,12 +228,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         // Return true to indicate that we want to use sendResponse asynchronously
         return true;
     }
-
-    // if (message.action === 'createPOAByTableSubmit') {
-    //     const url = message.urlID;
-    //     submitFormWithoutTab(url, message.formData);
-    //     return true; // Indicates that we want to use sendResponse asynchronously
-    // }
 
 });
 

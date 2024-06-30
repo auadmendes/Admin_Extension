@@ -141,7 +141,7 @@ async function giveCollectionsTablePersonCustomerIdLink() {
     originalTransactions.forEach(td => {
         const span = td.querySelector('span.label.label-default');
         if (span && span.textContent.trim() === 'P') {
-            const transactionId = td.childNodes[0].textContent.trim(); // Get the text node content
+            const transactionId = td.childNodes[0].textContent.trim(); 
             td.innerHTML = `<a target="_blank" href="https://trustly.one/admin-console/transactions?personId=${transactionId}">${transactionId}</a>`;
         }
     });

@@ -9,7 +9,7 @@ export function Columns() {
             try {
                 const storedData = await getColumnsStored();
                 if (storedData && Array.isArray(storedData)) {
-                    const sortedFields = storedData.slice().sort((a, b) => a.label.localeCompare(b.label));
+                    const sortedFields = storedData //.slice().sort((a, b) => a.label.localeCompare(b.label));
                     setFields(sortedFields);
                 } else {
                     setFields([]);

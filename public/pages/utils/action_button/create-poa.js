@@ -1,28 +1,36 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
 async function groupActionOptions() { 
-    const group = document.querySelector('.btn-group ul');
-    const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
+    chrome.storage.local.get(['actionButtonCheckedItems'], async (result) => {
 
-    const poaIcon = chrome.runtime.getURL("images/document.png");
-
-        if (group && groupButton === 'Action') {
-            
-            const newOption = document.createElement('li');
-
-            newOption.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
-                <img style="width: 20px;" src=${poaIcon} />
-                <span>Generate POA</span>
-            </a>`;
-
-            newOption.addEventListener('click', function(event) {
-                event.preventDefault();
-                createPOA();
-
-            });
-
-            group.appendChild(newOption);
+        if (result.actionButtonCheckedItems && result.actionButtonCheckedItems.generatePoa) {
+            const group = document.querySelector('.btn-group ul');
+            const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
+    
+            const poaIcon = chrome.runtime.getURL("images/document.png");
+    
+            if (group && groupButton === 'Action') {
+                
+                const newOption = document.createElement('li');
+    
+                newOption.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
+                    <img style="width: 20px;" src=${poaIcon} />
+                    <span>Generate POA</span>
+                </a>`;
+    
+                newOption.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    createPOA();
+    
+                });
+    
+                group.appendChild(newOption);
+            }
+    
         }
+    
+    
+    });
        
 }
 
@@ -81,4 +89,5 @@ function createPOA() {
         }
     }
 }
+
 

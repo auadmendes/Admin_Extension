@@ -17,7 +17,6 @@ function toast(message) {
     
     void toast.offsetWidth;
 
-    // Show the toast
     toast.style.opacity = "1";
 
     // Remove after seconds

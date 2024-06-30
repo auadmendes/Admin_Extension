@@ -18,6 +18,7 @@ import { TableEventsSection } from "../../components/MerchantDetails";
 import { PaymentDetails } from "../../components/PaymentDetails";
 import { TransactionDetails } from "../../components/TransactionDetails";
 import { FiTransactionDetails } from "../../components/FiTransactionDetails";
+import { ActionButton } from "../../components/ActionButton";
 import { CustomerInfo } from "../../components/CustomerInfo";
 
 
@@ -44,6 +45,7 @@ export function ConfigPage({onClick}: ConfigPageProps) {
     const [isTransactionEventsOpen, setIsTransactionEventsOpen] = useState(false);
     const [isfITransactionEventsOpen, setIsFiTransactionEventsOpen] = useState(false);
     const [isCustomerInfoEventsOpen, setIsCustomerInfoEventsOpen] = useState(false);
+    const [isActionButtonEventsOpen, setIsActionButtonEventsOpen] = useState(false);
     
     function handleReturnHome() {
         onClick();
@@ -115,6 +117,10 @@ export function ConfigPage({onClick}: ConfigPageProps) {
 
     function handleToggleCustomerInfoSection () {
       setIsCustomerInfoEventsOpen(!isCustomerInfoEventsOpen);
+    }
+
+    function handleToggleActionButtonSection () {
+      setIsActionButtonEventsOpen(!isActionButtonEventsOpen);
     }
 
       useEffect(() => {
@@ -234,6 +240,14 @@ export function ConfigPage({onClick}: ConfigPageProps) {
             {isCustomerInfoEventsOpen && (
               <section>
                 <CustomerInfo />
+              </section>
+            )}
+          <div className='mt-4 cursor-pointer' onClick={handleToggleActionButtonSection}>
+            <h2 className='text-sm'>{isActionButtonEventsOpen ? '▼' : '►'} Action Button</h2>
+          </div>
+            {isActionButtonEventsOpen && (
+              <section>
+                <ActionButton />
               </section>
             )}
 

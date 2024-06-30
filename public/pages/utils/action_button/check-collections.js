@@ -1,62 +1,67 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-undef */
 async function createGroupOptionCheckCollections() { 
-    const group = document.querySelector('.btn-group ul');
-    const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
 
-    const table = document.getElementById('sortabletable');
-    const firstRow = table?.querySelector('tbody tr');
+    chrome.storage.local.get(['actionButtonCheckedItems'], async (result) => {
 
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    //@ts-expect-error
-    const fingerprint = firstRow?.cells[17]?.textContent?.trim();
-
+        if (result.actionButtonCheckedItems && result.actionButtonCheckedItems.checkCollections) {
     
-
-
-    const collectionsIcon = chrome.runtime.getURL("images/collections_price.png");
-
-        if(group && groupButton == 'Action') {
-
-            const liPCollections = document.createElement('li');
-
-            liPCollections.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
-                <img style="width: 20px;" src=${collectionsIcon} />
-                <span>Check Collections</span>
-            </a>`;
-
-
-            liPCollections.addEventListener('click', function(event) {
-                event.preventDefault();
-                const url = new URL(window.location.href);
-                const params = url.searchParams;
-                const personId = params.get('personId');
-
-
-                if(personId) {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-expect-error
-                    openTabInServiceWorker(personId);
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-expect-error
-                    toast('Using Person ID' + personId)
-                } else if (fingerprint) {
-  
-                    toast('Using Fingerprint:  ' + fingerprint);
-                    
-                    openTabInServiceWorkerCollectionsFingerPrint(fingerprint);
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    //@ts-expect-error
-                    toast('No ;Person ID or Fingerprint were found. Please use the person ID.')
-                }
-            });
-
-
-            group.appendChild(liPCollections);
+            const group = document.querySelector('.btn-group ul');
+            const groupButton = document.querySelector('.btn-group #batch-select')?.textContent?.trim();
+    
+            const table = document.getElementById('sortabletable');
+            const firstRow = table?.querySelector('tbody tr');
+    
+    
+            const fingerprint = firstRow?.cells[17]?.textContent?.trim();
+    
+            
+    
+            const collectionsIcon = chrome.runtime.getURL("images/collections_price.png");
+    
+                if(group && groupButton == 'Action') {
+    
+                const liPCollections = document.createElement('li');
+    
+                liPCollections.innerHTML = `<a title="Use the Person ID" href="#" style="color: #0EA5E9;">
+                    <img style="width: 20px;" src=${collectionsIcon} />
+                    <span>Check Collections</span>
+                </a>`;
+    
+    
+                liPCollections.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const url = new URL(window.location.href);
+                    const params = url.searchParams;
+                    const personId = params.get('personId');
+    
+    
+                    if(personId) {
+    
+                        openTabInServiceWorker(personId);
+    
+                        toast('Using Person ID' + personId)
+                    } else if (fingerprint) {
+      
+                        toast('Using Fingerprint:  ' + fingerprint);
+                        
+                        openTabInServiceWorkerCollectionsFingerPrint(fingerprint);
+                    } else {
+    
+                        toast('No ;Person ID or Fingerprint were found. Please use the person ID.')
+                    }
+                });
+    
+    
+                group.appendChild(liPCollections);
+        
+            }
+    
     
         }
-       
+    
+    
+    });
 }
 
 function copySelectedMerchantReferenceByCollectionsToClipboard() {
@@ -135,11 +140,9 @@ function checkCheckboxesByTransactionId(transactionId) {
             console.log(transactionID, 'é igual a ', transactionId)
 
             const checkbox = row.querySelector('input[type="checkbox"]');
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
+
             if (checkbox && checkbox.checked === false) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
+
                 checkbox.checked = true;
                 
                 // Update the total amount and checked count
@@ -149,8 +152,7 @@ function checkCheckboxesByTransactionId(transactionId) {
                     if (!isNaN(amount)) {
                         totalAmount += amount;
                         checkedCount++;
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
+
                         updateTotalAmount(totalAmount, checkedCount);
                     }
                 }
@@ -162,11 +164,9 @@ function checkCheckboxesByTransactionId(transactionId) {
             console.log(transactionID, 'é igual a ', transactionId)
 
             const checkbox = row.querySelector('input[type="checkbox"]');
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
+
             if (checkbox && checkbox.checked === false) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        //@ts-expect-error
+
                 checkbox.checked = true;
                 
                 // Update the total amount and checked count
@@ -176,8 +176,7 @@ function checkCheckboxesByTransactionId(transactionId) {
                     if (!isNaN(amount)) {
                         totalAmount += amount;
                         checkedCount++;
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        //@ts-expect-error
+
                         updateTotalAmount(totalAmount, checkedCount);
                     }
                 }
@@ -189,4 +188,3 @@ function checkCheckboxesByTransactionId(transactionId) {
 
 
 
-//createGroupOptionCheckCollections();

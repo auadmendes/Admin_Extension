@@ -7,31 +7,13 @@ async function tabAccountCustomer() {
     const merchantName = document.querySelector('.table tbody tr:first-child td:nth-child(6) div div:nth-child(1)')?.textContent;
     const merchantLink = document.querySelector('.table tbody tr:first-child td:nth-child(6) div ul li:nth-child(2) a');
     
-    
-    
-    
-
-    
-    
-
-   
 
     accountCustomerBoxUl = document.createElement('ul');
     accountCustomerBoxUl.style.background = 'transparent';
-
     accountCustomerBoxUl.id = 'customerInfoBox';
-    //const personID = document.querySelector('#info .table-hover tr:nth-child(2) td:nth-child(2)')?.textContent;
-    //const customerExternalID = document.querySelector('#info .table-hover tr:nth-child(3) td:nth-child(2)')?.textContent?.trim();
-
     accountCustomerBoxUl.innerHTML += `<h4>Customer Info (<a target="_blank" href=${merchantLink}>${merchantName?.substring(0,8)}...</a>)</h4>`;
-    
 
-    
 
- 
-
-  
-    
     checkCustomerItemsChecked()
 }
 
@@ -103,7 +85,6 @@ async function checkCustomerItemsChecked() {
         
             
         }
-
         
         if (result.customerInfoCheckedItems && result.customerInfoCheckedItems.transactionsLink) {
             const personID = document.querySelector('#info .table-hover tr:nth-child(2) td:nth-child(2)')?.textContent;
@@ -127,7 +108,6 @@ async function checkCustomerItemsChecked() {
             
         }
 
-        
         if (result.customerInfoCheckedItems && result.customerInfoCheckedItems.teaIDLink) {
             const teaICon = chrome.runtime.getURL("images/tea.png");
             let teaIdCustomerInfo1;
@@ -204,7 +184,6 @@ async function checkCustomerItemsChecked() {
         
             }, 6000);
         }
-
 
     });
 }

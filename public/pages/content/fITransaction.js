@@ -4,9 +4,6 @@
 async function tabFiTransaction() {
     
 
-    
-    //let expectedDate;
-
     fiBoxUl = document.createElement('ul');
     fiBoxUl.style.background = 'transparent';
     fiBoxUl.innerHTML += `<h4>FI Transaction</h4>`;
@@ -18,6 +15,7 @@ async function tabFiTransaction() {
 }
 
 async function checkSavedItemOnStorage() {
+    
     chrome.storage.local.get(['fiTransactionCheckedItems'], async (result) => {
 
         if (result.fiTransactionCheckedItems && result.fiTransactionCheckedItems.paymentProcessor) {
@@ -195,7 +193,6 @@ function getEmailFromDropdown() {
    
         const userMenuText = userMenu.textContent;
 
-   
         const usernameRegex = /([\w.-]+)\s*$/; 
         const match = userMenuText?.match(usernameRegex);
         const extractedUsername = match ? match[1] : null;

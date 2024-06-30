@@ -20,7 +20,7 @@ async function checkCollectionsByActionsFingerprint() {
       
               openTab(finalUrl, (tab) => {
                   const tabId = tab.id;
-                  // Inject content script to extract data from the page
+                  
                   chrome.scripting.executeScript({
                       target: { tabId: tabId },
                       func: extractDataFromPage
@@ -41,7 +41,6 @@ async function checkCollectionsByActionsFingerprint() {
                   });
               });
       
-              // Return true to indicate that we want to use sendResponse asynchronously
               return true;
             }
           
