@@ -627,45 +627,6 @@ function findUserCanceledDetailsCode(statusCode) {
 
 
 
-// function showToast(htmlContent, element) {
-//     const toast = document.createElement('div');
-//     toast.classList.add('toast');
-//     toast.innerHTML = htmlContent; // Use innerHTML to set HTML content
-
-//     // Center the toast horizontally and set it 200px from the top
-//     toast.style.position = 'fixed';
-//     toast.style.top = '100px';
-//     toast.style.left = '50%';
-//     toast.style.transform = 'translateX(-50%)';
-
-//     document.body.appendChild(toast);
-
-//     // Show the toast
-//     toast.style.opacity = "1";
-
-//     // Remove toast after a delay
-//     let removalTimeout;
-
-//     function removeToast() {
-//         removalTimeout = setTimeout(() => {
-//             toast.style.opacity = "0";
-//             setTimeout(() => {
-//                 toast.remove();
-//             }, 500); // Fade out duration
-//         }, 1000); // Delay before starting fade out
-//     }
-
-//     // Clear the removal timeout if the mouse enters the toast
-//     function clearRemoveToast() {
-//         clearTimeout(removalTimeout);
-//     }
-
-//     element.addEventListener('mouseleave', removeToast);
-//     toast.addEventListener('mouseleave', removeToast);
-//     toast.addEventListener('mouseenter', clearRemoveToast);
-//     element.addEventListener('mouseenter', clearRemoveToast); // Optional: prevent removal if mouse re-enters the element
-// }
-
 function showToast(htmlContent, element) {
     const toast = document.createElement('div');
     toast.classList.add('toast');

@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Admin Console",
-  "version": "3.7.3",
+  "version": "3.7.4",
   "description": "The admin extension is currently in test mode",
   "icons": {
     "16": "images/TGreen.png",

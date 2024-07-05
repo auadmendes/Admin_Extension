@@ -15,7 +15,7 @@ function extractDataFromPage() {
     const rows = document.querySelectorAll('tr');
     const data = Array.from(rows).map(row => {
         const cells = row.querySelectorAll('td');
-        if (cells.length > 9 && cells[9].textContent.trim() === 'PENDING') {
+        if (cells.length > 9 && (cells[9].textContent.trim() === 'PENDING' || cells[9].textContent.trim() == 'PARTIAL')) {
             return {
                 transactionId: cells[1].textContent.trim(),
                 originalTransaction: cells[2].textContent.trim(),
@@ -113,7 +113,7 @@ function openTab(url, callback) {
 function closeTab(tabId, originalTabId) {
     chrome.tabs.remove(tabId, () => {
         if (originalTabId !== undefined) {
-            chrome.tabs.update(originalTabId, { active: true });
+            //chrome.tabs.update(originalTabId, { active: true });
         }
     });
 }
